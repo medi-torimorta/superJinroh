@@ -1,7 +1,7 @@
 {
-    "id":  "role-set-08-extension",
-    "displayName":  "8人拡張配役",
-    "requiredPlayerCount":  8,
+    "id":  "role-set-extension-07",
+    "displayName":  "7人拡張配役",
+    "requiredPlayerCount":  7,
     "monsterWinRequiredKills":  2,
     "roles":  [
                   {
@@ -11,8 +11,8 @@
                   },
                   {
                       "roleId":  "villager",
-                      "min":  3,
-                      "max":  3
+                      "min":  2,
+                      "max":  2
                   },
                   {
                       "roleId":  "guard-dog",

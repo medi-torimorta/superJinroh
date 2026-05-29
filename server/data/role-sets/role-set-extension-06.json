@@ -1,8 +1,8 @@
 {
-    "id":  "role-set-16-standard",
-    "displayName":  "16人標準配役",
-    "requiredPlayerCount":  16,
-    "monsterWinRequiredKills":  6,
+    "id":  "role-set-extension-06",
+    "displayName":  "6人拡張配役",
+    "requiredPlayerCount":  6,
+    "monsterWinRequiredKills":  1,
     "roles":  [
                   {
                       "roleId":  "detective",
@@ -11,11 +11,11 @@
                   },
                   {
                       "roleId":  "villager",
-                      "min":  8,
-                      "max":  9
+                      "min":  2,
+                      "max":  3
                   },
                   {
-                      "roleId":  "guard-dog",
+                      "roleId":  "stray-dog",
                       "min":  0,
                       "max":  1
                   },
@@ -25,12 +25,7 @@
                       "max":  1
                   },
                   {
-                      "roleId":  "cultist",
-                      "min":  3,
-                      "max":  4 
-                  },
-                  {
-                      "roleId":  "evil-god",
+                      "roleId":  "hyena",
                       "min":  0,
                       "max":  1
                   }

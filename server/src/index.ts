@@ -49,6 +49,7 @@ const serverRootDir = path.resolve(serverSrcDir, '..');
 const productRootDir = path.resolve(serverRootDir, '..');
 const clientDistDir = path.join(productRootDir, 'client', 'dist');
 const clientIndexPath = path.join(clientDistDir, 'index.html');
+const packagedExecutableDir = process.env.SUPER_JINROH_EXECUTABLE_DIR?.trim() || null;
 
 const DEFAULT_PORT = 11037;
 const CLIENT_ID_HEADER = 'x-super-jinroh-client-id';
@@ -336,6 +337,13 @@ const GRANTED_SPECIAL_ABILITY_IDS_BY_IMPLEMENTATION_KEY = new Map<string, string
 
 function dataPath(...parts: string[]) {
   return path.join(serverRootDir, 'data', ...parts);
+}
+
+function customRoleSetsDirPath() {
+  if (packagedExecutableDir) {
+    return path.join(packagedExecutableDir, 'role-sets', 'custom');
+  }
+  return dataPath('role-sets', 'custom');
 }
 
 function sendRootDocument(res: express.Response) {
@@ -729,12 +737,49 @@ async function loadAbilityDefinitions() {
   runtime.abilityById = new Map(runtime.abilities.map((entry) => [entry.abilityId, entry]));
 }
 
+function normalizeRoleSetId(roleSetId: string) {
+  const standardMatch = /^role-set-(\d{2})-standard$/.exec(roleSetId);
+  if (standardMatch) {
+    return `role-set-basic-${standardMatch[1]}`;
+  }
+  const extensionMatch = /^role-set-(\d{2})-extension$/.exec(roleSetId);
+  if (extensionMatch) {
+    return `role-set-extension-${extensionMatch[1]}`;
+  }
+  return roleSetId;
+}
+
+function isCustomRoleSetId(roleSetId: string) {
+  return roleSetId.startsWith('role-set-custom');
+}
+
+async function listJsonFilesRecursive(dirPath: string): Promise<string[]> {
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const files: string[] = [];
+  for (const entry of entries) {
+    const nextPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await listJsonFilesRecursive(nextPath));
+      continue;
+    }
+    if (entry.isFile() && entry.name.endsWith('.json')) {
+      files.push(nextPath);
+    }
+  }
+  return files;
+}
+
 async function loadRoleSets() {
   const dir = dataPath('role-sets');
-  const files = (await fs.readdir(dir)).filter((file) => file.endsWith('.json'));
+  const bundledCustomDir = path.join(dir, 'custom');
+  const bundledFiles = (await listJsonFilesRecursive(dir)).filter((file) => !file.startsWith(`${bundledCustomDir}${path.sep}`));
+  const customDir = customRoleSetsDirPath();
+  await fs.mkdir(customDir, { recursive: true });
+  const customFiles = await listJsonFilesRecursive(customDir);
+  const files = [...bundledFiles, ...customFiles];
   const loaded: RoleSetDefinition[] = [];
   for (const file of files) {
-    const parsed = roleSetSchema.parse(await readJsonFile<RoleSetDefinition>(path.join(dir, file)));
+    const parsed = roleSetSchema.parse(await readJsonFile<RoleSetDefinition>(file));
     const minTotal = parsed.roles.reduce((sum, role) => sum + role.min, 0);
     const maxTotal = parsed.roles.reduce((sum, role) => sum + role.max, 0);
     if (parsed.roles.some((role) => role.min > role.max)) {
@@ -754,6 +799,9 @@ async function loadRoleSets() {
     loaded.push(parsed);
   }
   loaded.sort((left, right) => {
+    if (isCustomRoleSetId(left.id) !== isCustomRoleSetId(right.id)) {
+      return isCustomRoleSetId(left.id) ? 1 : -1;
+    }
     if (left.requiredPlayerCount !== right.requiredPlayerCount) {
       return left.requiredPlayerCount - right.requiredPlayerCount;
     }
@@ -813,11 +861,19 @@ async function ensureSettings() {
     prisma.appSetting.findUnique({ where: { settingKey: SETTING_KEYS.nightSeconds } }),
   ]);
   const fallbackId = runtime.roleSets[0]?.id ?? null;
-  runtime.selectedRoleSetId = savedRoleSet?.settingValue ?? fallbackId;
+  runtime.selectedRoleSetId = normalizeRoleSetId(savedRoleSet?.settingValue ?? fallbackId ?? '');
+  if (runtime.selectedRoleSetId && !runtime.roleSetById.has(runtime.selectedRoleSetId)) {
+    runtime.selectedRoleSetId = fallbackId;
+  }
   runtime.phaseSettings.daySeconds = Number(savedDaySeconds?.settingValue ?? PHASE_DURATIONS.DAY);
   runtime.phaseSettings.nightSeconds = Number(savedNightSeconds?.settingValue ?? PHASE_DURATIONS.NIGHT);
   if (!savedRoleSet && fallbackId) {
     await prisma.appSetting.create({ data: { settingKey: SETTING_KEYS.selectedRoleSetId, settingValue: fallbackId } });
+  } else if (savedRoleSet?.settingValue && runtime.selectedRoleSetId && savedRoleSet.settingValue !== runtime.selectedRoleSetId) {
+    await prisma.appSetting.update({
+      where: { settingKey: SETTING_KEYS.selectedRoleSetId },
+      data: { settingValue: runtime.selectedRoleSetId },
+    });
   }
   if (!savedDaySeconds) {
     await prisma.appSetting.create({ data: { settingKey: SETTING_KEYS.daySeconds, settingValue: String(PHASE_DURATIONS.DAY) } });
@@ -966,7 +1022,9 @@ async function createCustomRoleSet(input: {
     version: '1.0.0',
     enabled: true,
   };
-  const filePath = dataPath('role-sets', `${nextId}.json`);
+  const customDir = customRoleSetsDirPath();
+  await fs.mkdir(customDir, { recursive: true });
+  const filePath = path.join(customDir, `${nextId}.json`);
   await fs.writeFile(filePath, `${JSON.stringify(roleSet, null, 2)}\n`, 'utf8');
   await loadRoleSets();
   await persistSelectedRoleSet(nextId);
@@ -3527,12 +3585,13 @@ app.put('/api/lobby/selected-role-set', async (req, res) => {
   }
   const schema = z.object({ roleSetId: z.string().min(1) });
   const parsed = schema.parse(req.body);
-  if (!runtime.roleSetById.has(parsed.roleSetId)) {
+  const normalizedRoleSetId = normalizeRoleSetId(parsed.roleSetId);
+  if (!runtime.roleSetById.has(normalizedRoleSetId)) {
     res.status(404).json({ message: '配役が存在しません。' });
     return;
   }
-  await persistSelectedRoleSet(parsed.roleSetId);
-  await logAction('lobby.roleSetChanged', { roleSetId: parsed.roleSetId });
+  await persistSelectedRoleSet(normalizedRoleSetId);
+  await logAction('lobby.roleSetChanged', { roleSetId: normalizedRoleSetId });
   await broadcastLobby();
   res.json(getLobbySnapshot(buildParticipantIdentityKey(getIpAddress(req), getClientId(req))));
 });

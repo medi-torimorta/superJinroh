@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { rcedit } from 'rcedit';
+import { Data, NtExecutable, NtExecutableResource, Resource, calculateCheckSumForPE } from '@shockpkg/resedit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,6 +65,79 @@ function copyDirRecursive(sourceDir, targetDir) {
   }
 }
 
+function ensureCustomRoleSetDir(baseDir) {
+  const customDir = path.join(baseDir, 'role-sets', 'custom');
+  fs.mkdirSync(customDir, { recursive: true });
+  const gitkeepPath = path.join(customDir, '.gitkeep');
+  if (!fs.existsSync(gitkeepPath)) {
+    fs.writeFileSync(gitkeepPath, '');
+  }
+}
+
+function readPngDimensions(pngBuffer) {
+  const pngSignature = '89504e470d0a1a0a';
+  if (pngBuffer.subarray(0, 8).toString('hex') !== pngSignature) {
+    throw new Error('Invalid PNG signature for Windows icon asset.');
+  }
+  if (pngBuffer.subarray(12, 16).toString('ascii') !== 'IHDR') {
+    throw new Error('PNG IHDR chunk was not found for Windows icon asset.');
+  }
+  return {
+    width: pngBuffer.readUInt32BE(16),
+    height: pngBuffer.readUInt32BE(20),
+  };
+}
+
+async function applyWindowsExecutableResources(targetExePath) {
+  if (platform !== 'win32') {
+    return;
+  }
+
+  const pngPath = path.join(assetsDir, 'superjinroh.png');
+  const exeBuffer = fs.readFileSync(targetExePath);
+  const exeBinary = exeBuffer.buffer.slice(exeBuffer.byteOffset, exeBuffer.byteOffset + exeBuffer.byteLength);
+  const executable = NtExecutable.from(exeBinary, { ignoreCert: true });
+  const resources = NtExecutableResource.from(executable, true);
+  const versionLang = 1033;
+  const versionCodepage = 1200;
+  const version = toWindowsVersion(appVersion);
+
+  if (fs.existsSync(pngPath)) {
+    const pngBuffer = fs.readFileSync(pngPath);
+    const pngBinary = pngBuffer.buffer.slice(pngBuffer.byteOffset, pngBuffer.byteOffset + pngBuffer.byteLength);
+    const { width, height } = readPngDimensions(pngBuffer);
+    const iconItem = Data.RawIconItem.from(pngBinary, width, height, 32);
+    Resource.IconGroupEntry.replaceIconsForResource(resources.entries, 1, versionLang, [iconItem]);
+  }
+
+  const versionInfo = Resource.VersionInfo.create({
+    lang: versionLang,
+    fixedInfo: {
+      fileOS: Resource.VersionFileOS.NT_Windows32,
+      fileType: Resource.VersionFileType.App,
+    },
+    strings: [{
+      lang: versionLang,
+      codepage: versionCodepage,
+      values: {
+        FileDescription: 'superJinroh',
+        InternalFilename: 'superjinroh.exe',
+        OriginalFilename: 'superjinroh.exe',
+        ProductName: 'superJinroh',
+      },
+    }],
+  });
+  versionInfo.setFileVersion(version, versionLang);
+  versionInfo.setProductVersion(version, versionLang);
+  versionInfo.outputToResourceEntries(resources.entries);
+
+  resources.outputResource(executable, false, true);
+  const generatedBinary = executable.generate();
+  calculateCheckSumForPE(generatedBinary, true);
+  fs.writeFileSync(targetExePath, Buffer.from(generatedBinary));
+  console.log(`Embedded Windows icon and version metadata into ${targetExePath}`);
+}
+
 function stageRuntimeFiles() {
   const stagedProductRoot = path.join(appRoot, 'product');
   fs.mkdirSync(stagedProductRoot, { recursive: true });
@@ -83,7 +156,7 @@ function stageRuntimeFiles() {
   }
 }
 
-function buildSeaBinary() {
+async function buildSeaBinary() {
   const seaTmpDir = path.join(productRoot, '.sea');
   fs.mkdirSync(seaTmpDir, { recursive: true });
 
@@ -128,27 +201,16 @@ function buildSeaBinary() {
   if (platform === 'darwin') {
     run('codesign', ['--sign', '-', exePath]);
   }
+
+  if (platform === 'win32') {
+    await applyWindowsExecutableResources(exePath);
+  }
 }
 
 async function packageWindows() {
-  const icoPath = path.join(assetsDir, 'superjinroh.ico');
-  if (fs.existsSync(icoPath)) {
-    await rcedit(exePath, {
-      icon: icoPath,
-      'file-version': toWindowsVersion(appVersion),
-      'product-version': toWindowsVersion(appVersion),
-      'version-string': {
-        FileDescription: 'superJinroh',
-        InternalFilename: 'superjinroh.exe',
-        OriginalFilename: 'superjinroh.exe',
-        ProductName: 'superJinroh',
-      },
-    });
-    console.log(`Embedded ICO and version metadata into ${exePath}`);
-  }
-
   const releaseExe = path.join(outRoot, 'superjinroh.exe');
   fs.copyFileSync(exePath, releaseExe);
+  ensureCustomRoleSetDir(outRoot);
   console.log(`Created ${releaseExe}`);
 }
 
@@ -210,7 +272,6 @@ function packageLinux() {
     path.join(appDir, 'superjinroh.desktop'),
     [
       '[Desktop Entry]',
-      `Version=${appVersion}`,
       'Type=Application',
       'Name=superJinroh',
       'Exec=superjinroh',
@@ -229,15 +290,17 @@ function packageLinux() {
       APPIMAGE_EXTRACT_AND_RUN: process.env.APPIMAGE_EXTRACT_AND_RUN ?? '1',
     },
   });
+  ensureCustomRoleSetDir(outRoot);
   console.log(`Created ${appImagePath}`);
 }
 
 async function main() {
   ensureEmptyDir(outRoot);
   fs.mkdirSync(appRoot, { recursive: true });
+  ensureCustomRoleSetDir(appRoot);
 
   stageRuntimeFiles();
-  buildSeaBinary();
+  await buildSeaBinary();
 
   if (platform === 'win32') {
     await packageWindows();

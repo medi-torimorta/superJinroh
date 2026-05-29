@@ -1,7 +1,7 @@
 {
-    "id":  "role-set-07-standard",
-    "displayName":  "7人標準配役",
-    "requiredPlayerCount":  7,
+    "id":  "role-set-basic-08",
+    "displayName":  "8人標準配役",
+    "requiredPlayerCount":  8,
     "monsterWinRequiredKills":  2,
     "roles":  [
                   {
@@ -12,7 +12,7 @@
                   {
                       "roleId":  "villager",
                       "min":  3,
-                      "max":  3
+                      "max":  4
                   },
                   {
                       "roleId":  "guard-dog",
@@ -27,7 +27,7 @@
                   {
                       "roleId":  "cultist",
                       "min":  0,
-                      "max":  1 
+                      "max":  1
                   },
                   {
                       "roleId":  "evil-god",

@@ -1,8 +1,8 @@
 {
-    "id":  "role-set-07-extension",
-    "displayName":  "7人拡張配役",
-    "requiredPlayerCount":  7,
-    "monsterWinRequiredKills":  2,
+    "id":  "role-set-extension-05",
+    "displayName":  "5人拡張配役",
+    "requiredPlayerCount":  5,
+    "monsterWinRequiredKills":  1,
     "roles":  [
                   {
                       "roleId":  "detective",
@@ -12,15 +12,10 @@
                   {
                       "roleId":  "villager",
                       "min":  2,
-                      "max":  2
+                      "max":  3
                   },
                   {
-                      "roleId":  "guard-dog",
-                      "min":  0,
-                      "max":  1
-                  },
-                  {
-                      "roleId":  "wealthy",
+                      "roleId":  "stray-dog",
                       "min":  0,
                       "max":  1
                   },
@@ -30,17 +25,7 @@
                       "max":  1
                   },
                   {
-                      "roleId":  "cultist",
-                      "min":  0,
-                      "max":  1
-                  },
-                  {
-                      "roleId":  "ghost",
-                      "min":  0,
-                      "max":  1
-                  },
-                  {
-                      "roleId":  "evil-god",
+                      "roleId":  "hyena",
                       "min":  0,
                       "max":  1
                   }

@@ -1,8 +1,8 @@
 {
-    "id":  "role-set-11-standard",
-    "displayName":  "11人標準配役",
-    "requiredPlayerCount":  11,
-    "monsterWinRequiredKills":  3,
+    "id":  "role-set-basic-15",
+    "displayName":  "15人標準配役",
+    "requiredPlayerCount":  15,
+    "monsterWinRequiredKills":  4,
     "roles":  [
                   {
                       "roleId":  "detective",
@@ -11,8 +11,8 @@
                   },
                   {
                       "roleId":  "villager",
-                      "min":  5,
-                      "max":  6
+                      "min":  8,
+                      "max":  9
                   },
                   {
                       "roleId":  "guard-dog",
@@ -26,8 +26,8 @@
                   },
                   {
                       "roleId":  "cultist",
-                      "min":  1,
-                      "max":  2 
+                      "min":  2,
+                      "max":  3
                   },
                   {
                       "roleId":  "evil-god",

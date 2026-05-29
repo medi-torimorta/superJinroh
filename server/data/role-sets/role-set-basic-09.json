@@ -1,8 +1,8 @@
 {
-    "id":  "role-set-16-extension",
-    "displayName":  "16人拡張配役",
-    "requiredPlayerCount":  16,
-    "monsterWinRequiredKills":  5,
+    "id":  "role-set-basic-09",
+    "displayName":  "9人標準配役",
+    "requiredPlayerCount":  9,
+    "monsterWinRequiredKills":  2,
     "roles":  [
                   {
                       "roleId":  "detective",
@@ -11,17 +11,12 @@
                   },
                   {
                       "roleId":  "villager",
-                      "min":  6,
-                      "max":  7
+                      "min":  4,
+                      "max":  5
                   },
                   {
                       "roleId":  "guard-dog",
                       "min":  0,
-                      "max":  1
-                  },
-                  {
-                      "roleId":  "wealthy",
-                      "min":  1,
                       "max":  1
                   },
                   {
@@ -31,11 +26,6 @@
                   },
                   {
                       "roleId":  "cultist",
-                      "min":  3,
-                      "max":  4
-                  },
-                  {
-                      "roleId":  "ghost",
                       "min":  0,
                       "max":  1
                   },

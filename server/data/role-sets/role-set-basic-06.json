@@ -1,7 +1,7 @@
 {
-    "id":  "role-set-05-standard",
-    "displayName":  "5人標準配役",
-    "requiredPlayerCount":  5,
+    "id":  "role-set-basic-06",
+    "displayName":  "6人標準配役",
+    "requiredPlayerCount":  6,
     "monsterWinRequiredKills":  1,
     "roles":  [
                   {
@@ -11,12 +11,12 @@
                   },
                   {
                       "roleId":  "villager",
-                      "min":  2,
+                      "min":  3,
                       "max":  3
                   },
                   {
                       "roleId":  "stray-dog",
-                      "min":  0,
+                      "min":  1,
                       "max":  1
                   },
                   {

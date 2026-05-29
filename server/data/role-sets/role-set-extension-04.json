@@ -1,7 +1,7 @@
 {
-    "id":  "role-set-06-standard",
-    "displayName":  "6人標準配役",
-    "requiredPlayerCount":  6,
+    "id":  "role-set-extension-04",
+    "displayName":  "4人拡張配役",
+    "requiredPlayerCount":  4,
     "monsterWinRequiredKills":  1,
     "roles":  [
                   {
@@ -11,17 +11,22 @@
                   },
                   {
                       "roleId":  "villager",
-                      "min":  3,
-                      "max":  3
+                      "min":  1,
+                      "max":  2
                   },
                   {
                       "roleId":  "stray-dog",
-                      "min":  1,
+                      "min":  0,
                       "max":  1
                   },
                   {
                       "roleId":  "monster",
                       "min":  1,
+                      "max":  1
+                  },
+                  {
+                      "roleId":  "hyena",
+                      "min":  0,
                       "max":  1
                   }
               ],
