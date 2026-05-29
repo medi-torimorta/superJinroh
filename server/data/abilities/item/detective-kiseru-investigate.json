@@ -1,0 +1,11 @@
+{
+  "abilityId": "detective-kiseru-investigate",
+  "displayName": "探偵のキセル",
+  "description": "探偵が生存していない時のみ使用可能。夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーが人間か人外か判定できる。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "detective-kiseru-investigate",
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "abilityId": "grave-guide-steal-random-from-dead",
+  "displayName": "盗掘指南書",
+  "description": "死亡しているプレイヤーから1人を選ぶ。そのプレイヤーのアイテムをランダムに1個奪う。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "grave-guide-steal-random-from-dead",
+  "enabled": true
+}

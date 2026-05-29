@@ -1,0 +1,11 @@
+{
+  "abilityId": "quill-shift-to-spell-or-gain-item",
+  "displayName": "羽ペン",
+  "description": "自分の趣味が技能タイプであれば、以降呪文タイプになる。そうでなければ、新たにアイテムを1個獲得する。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "quill-shift-to-spell-or-gain-item",
+  "enabled": true
+}

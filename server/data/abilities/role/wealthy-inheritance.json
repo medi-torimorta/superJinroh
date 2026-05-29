@@ -1,0 +1,11 @@
+{
+  "abilityId": "wealthy-inheritance",
+  "displayName": "遺産",
+  "description": "死亡したとき生存中のプレイヤーから3人を選ぶ。そのプレイヤーは山札から新たにアイテムを1個獲得する。",
+  "abilityType": "PROFESSION",
+  "timing": "SELF_DEATH",
+  "canCancel": false,
+  "targetCount": 3,
+  "implementationKey": "wealthy-inheritance",
+  "enabled": true
+}

@@ -1,0 +1,8 @@
+{
+  "itemId": "health-pack",
+  "displayName": "応急キット",
+  "description": "圧倒的回復力。",
+  "abilityIds": ["health-pack-heal"],
+  "cardCount": 4,
+  "enabled": true
+}

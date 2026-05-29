@@ -1,0 +1,8 @@
+{
+  "itemId": "white-reagent",
+  "displayName": "白い試薬",
+  "description": "この世の物とも思えない白さ。",
+  "abilityIds": ["white-reagent-detect-evil-god"],
+  "cardCount": 4,
+  "enabled": true
+}

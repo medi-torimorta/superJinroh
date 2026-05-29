@@ -1,0 +1,7 @@
+{
+  "roleId": "hyena",
+  "displayName": "ハイエナ",
+  "description": "人外陣営が勝利しても、死亡していると自分だけ敗北扱いになる。",
+  "abilityIds": [],
+  "enabled": true
+}

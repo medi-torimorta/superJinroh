@@ -1,0 +1,11 @@
+{
+  "abilityId": "grave-robber-shovel-reveal-role",
+  "displayName": "墓暴きのスコップ",
+  "description": "夜、死亡しているプレイヤーから1人を選ぶ。その役職を確認し、全員に公開する。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "grave-robber-shovel-reveal-role",
+  "enabled": true
+}

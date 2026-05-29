@@ -1,0 +1,28 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+
+function resolveEntryPoint() {
+  const packaged = path.join(path.dirname(process.execPath), 'product', 'server', 'dist', 'index.js');
+  if (fs.existsSync(packaged)) {
+    return packaged;
+  }
+
+  const dev = path.resolve(__dirname, '..', '..', 'server', 'dist', 'index.js');
+  if (fs.existsSync(dev)) {
+    return dev;
+  }
+
+  throw new Error(`server entry not found: ${packaged}`);
+}
+
+(async () => {
+  const entry = resolveEntryPoint();
+  const serverRoot = path.dirname(path.dirname(entry));
+  process.chdir(serverRoot);
+  await import(pathToFileURL(entry).href);
+})().catch((error) => {
+  console.error('[superJinroh] SEA launcher failed.');
+  console.error(error);
+  process.exit(1);
+});

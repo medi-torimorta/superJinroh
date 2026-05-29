@@ -1,0 +1,8 @@
+{
+  "itemId": "will",
+  "displayName": "遺言書",
+  "description": "死んでわからせる。",
+  "abilityIds": ["will-reveal-role"],
+  "cardCount": 4,
+  "enabled": true
+}

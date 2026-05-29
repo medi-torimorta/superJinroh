@@ -1,0 +1,11 @@
+{
+  "abilityId": "handgun-protect",
+  "displayName": "拳銃",
+  "description": "自分を保護状態にする。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "handgun-protect",
+  "enabled": true
+}

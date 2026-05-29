@@ -1,0 +1,11 @@
+{
+  "abilityId": "monster-scout-assault",
+  "displayName": "下見襲撃",
+  "description": "夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーは翌朝開始時にアイテムを1枚捨てる。その後、この能力は「襲撃」に変化する。",
+  "abilityType": "PROFESSION",
+  "timing": "ZERO_NIGHT",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "monster-scout-assault",
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "abilityId": "protein-bar-gain-two-if-single-item",
+  "displayName": "プロテインバー",
+  "description": "手持ちのアイテムがこれだけのとき、新たに2個アイテムを獲得する。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "protein-bar-gain-two-if-single-item",
+  "enabled": true
+}

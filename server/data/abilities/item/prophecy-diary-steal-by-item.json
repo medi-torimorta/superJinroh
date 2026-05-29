@@ -1,0 +1,11 @@
+{
+  "abilityId": "prophecy-diary-steal-by-item",
+  "displayName": "予言日記",
+  "description": "自分以外の生存中のプレイヤーから1人を選び、続けてアイテムを1つ選ぶ。対象がそのアイテムを所持していた場合、対象のアイテムを全て奪う。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "prophecy-diary-steal-by-item",
+  "enabled": true
+}

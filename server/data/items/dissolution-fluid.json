@@ -1,0 +1,8 @@
+{
+  "itemId": "dissolution-fluid",
+  "displayName": "溶解液",
+  "description": "万物を溶かす。",
+  "abilityIds": ["dissolution-fluid-discard-all-items"],
+  "cardCount": 4,
+  "enabled": true
+}

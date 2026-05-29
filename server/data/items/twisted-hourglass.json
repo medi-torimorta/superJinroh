@@ -1,0 +1,8 @@
+{
+  "itemId": "twisted-hourglass",
+  "displayName": "ねじれた砂時計",
+  "description": "時間を巻き戻す力がある。",
+  "abilityIds": ["twisted-hourglass-extend-day"],
+  "cardCount": 4,
+  "enabled": true
+}

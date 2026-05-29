@@ -1,0 +1,5 @@
+{
+  "main": "D:\\projects\\vibes\\superJinroh\\product\\scripts\\release\\sea-launcher.cjs",
+  "output": "D:\\projects\\vibes\\superJinroh\\product\\.sea\\sea-prep.blob",
+  "disableExperimentalSEAWarning": true
+}

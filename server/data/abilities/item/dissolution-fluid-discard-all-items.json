@@ -1,0 +1,11 @@
+{
+  "abilityId": "dissolution-fluid-discard-all-items",
+  "displayName": "溶解液",
+  "description": "自分以外の生存中のプレイヤーから1人を選ぶ。自分とそのプレイヤーはアイテムを全て失う。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "dissolution-fluid-discard-all-items",
+  "enabled": true
+}

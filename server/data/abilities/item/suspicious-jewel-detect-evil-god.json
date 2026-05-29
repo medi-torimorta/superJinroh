@@ -1,0 +1,11 @@
+{
+  "abilityId": "suspicious-jewel-detect-evil-god",
+  "displayName": "妖しい宝石",
+  "description": "夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーが邪神か邪神でないかを判定できる。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "suspicious-jewel-detect-evil-god",
+  "enabled": true
+}

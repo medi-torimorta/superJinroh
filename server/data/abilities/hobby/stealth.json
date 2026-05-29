@@ -1,0 +1,11 @@
+{
+  "abilityId": "stealth",
+  "displayName": "隠密",
+  "description": "3日目の朝終了時まで、自身は瀕死にならない。",
+  "abilityType": "PASSIVE",
+  "timing": "NONE",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "stealth",
+  "enabled": true
+}

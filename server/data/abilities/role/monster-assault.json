@@ -1,0 +1,11 @@
+{
+  "abilityId": "monster-assault",
+  "displayName": "襲撃",
+  "description": "夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーは翌朝開始時に瀕死になる。",
+  "abilityType": "PROFESSION",
+  "timing": "NIGHT",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "monster-assault",
+  "enabled": true
+}

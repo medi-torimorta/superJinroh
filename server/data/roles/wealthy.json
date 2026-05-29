@@ -1,0 +1,7 @@
+{
+  "roleId": "wealthy",
+  "displayName": "資産家",
+  "description": "死亡時、ロールカードを公開する。",
+  "abilityIds": ["wealthy-inheritance"],
+  "enabled": true
+}

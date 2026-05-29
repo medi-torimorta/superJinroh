@@ -1,0 +1,8 @@
+{
+  "itemId": "grave-robber-shovel",
+  "displayName": "墓暴きのスコップ",
+  "description": "持ち手は冷たい。",
+  "abilityIds": ["grave-robber-shovel-reveal-role"],
+  "cardCount": 4,
+  "enabled": true
+}

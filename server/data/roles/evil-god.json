@@ -1,0 +1,7 @@
+{
+  "roleId": "evil-god",
+  "displayName": "邪神",
+  "description": "処刑死したとき、邪神陣営が勝利する。",
+  "abilityIds": [],
+  "enabled": true
+}

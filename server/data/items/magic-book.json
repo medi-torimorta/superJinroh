@@ -1,0 +1,8 @@
+{
+  "itemId": "magic-book",
+  "displayName": "魔導書",
+  "description": "人皮で装丁されている。",
+  "abilityIds": ["magic-book-protect"],
+  "cardCount": 4,
+  "enabled": true
+}

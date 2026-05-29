@@ -1,0 +1,11 @@
+{
+  "abilityId": "white-reagent-detect-evil-god",
+  "displayName": "白い試薬",
+  "description": "夜、生存者の中に邪神がいるかを判定する。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "white-reagent-detect-evil-god",
+  "enabled": true
+}

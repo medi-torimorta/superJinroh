@@ -1,0 +1,11 @@
+{
+  "abilityId": "fumie-detect-cultist",
+  "displayName": "踏み絵",
+  "description": "夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーが裏切り者か裏切り者でないかを判定できる。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "fumie-detect-cultist",
+  "enabled": true
+}

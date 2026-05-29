@@ -1,0 +1,11 @@
+{
+  "abilityId": "crystal-skull-talkable-on-execution-death",
+  "displayName": "クリスタルスカル",
+  "description": "処刑死したとき、ゲーム終了まで会話のみ参加できる。",
+  "abilityType": "TRIGGERED",
+  "timing": "SELF_DEATH",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "crystal-skull-talkable-on-execution-death",
+  "enabled": true
+}

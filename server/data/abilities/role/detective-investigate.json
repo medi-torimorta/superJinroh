@@ -1,0 +1,11 @@
+{
+  "abilityId": "detective-investigate",
+  "displayName": "調査",
+  "description": "夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーが人間か人外か判定できる。",
+  "abilityType": "PROFESSION",
+  "timing": "NIGHT",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "detective-investigate",
+  "enabled": true
+}

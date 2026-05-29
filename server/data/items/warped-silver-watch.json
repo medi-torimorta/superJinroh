@@ -1,0 +1,8 @@
+{
+  "itemId": "warped-silver-watch",
+  "displayName": "歪んだ銀時計",
+  "description": "時間を加速させる力がある。",
+  "abilityIds": ["warped-silver-watch-shorten-day"],
+  "cardCount": 4,
+  "enabled": true
+}

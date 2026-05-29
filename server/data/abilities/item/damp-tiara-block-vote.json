@@ -1,0 +1,11 @@
+{
+  "abilityId": "damp-tiara-block-vote",
+  "displayName": "湿ったティアラ",
+  "description": "投票開始時、魔法趣味の生存者を1人選ぶ。そのプレイヤーはその投票で投票できない。",
+  "abilityType": "ACTIVE",
+  "timing": "VOTE_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "damp-tiara-block-vote",
+  "enabled": true
+}

@@ -1,0 +1,27 @@
+{
+  "name": "super-jinroh",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run build:shared && npm-run-all --parallel dev:server dev:client",
+    "dev:server": "npm --workspace server run dev",
+    "dev:client": "npm --workspace client run dev",
+    "build": "npm run build:shared && npm run build:server && npm run build:client",
+    "build:shared": "npm --workspace shared run build",
+    "build:server": "npm --workspace server run build",
+    "build:client": "npm --workspace client run build",
+    "sea:build": "node scripts/release/build-sea.mjs",
+    "setup": "npm install && npm run build:shared && npm --workspace server run prisma:generate && npm --workspace server run prisma:migrate:deploy",
+    "lint": "npm run build"
+  },
+  "devDependencies": {
+    "postject": "1.0.0-alpha.6",
+    "npm-run-all": "4.1.5",
+    "typescript": "5.8.3"
+  }
+}

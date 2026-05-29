@@ -1,0 +1,8 @@
+{
+  "itemId": "crystal-skull",
+  "displayName": "クリスタルスカル",
+  "description": "透き通った頭蓋。",
+  "abilityIds": ["crystal-skull-talkable-on-execution-death"],
+  "cardCount": 4,
+  "enabled": true
+}

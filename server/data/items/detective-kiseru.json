@@ -1,0 +1,8 @@
+{
+  "itemId": "detective-kiseru",
+  "displayName": "探偵のキセル",
+  "description": "忘れ形見。",
+  "abilityIds": ["detective-kiseru-investigate"],
+  "cardCount": 4,
+  "enabled": true
+}

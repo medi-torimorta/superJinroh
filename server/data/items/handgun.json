@@ -1,0 +1,8 @@
+{
+  "itemId": "handgun",
+  "displayName": "拳銃",
+  "description": "護身用。",
+  "abilityIds": ["handgun-protect"],
+  "cardCount": 4,
+  "enabled": true
+}

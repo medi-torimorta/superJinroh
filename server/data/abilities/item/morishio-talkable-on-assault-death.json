@@ -1,0 +1,11 @@
+{
+  "abilityId": "morishio-talkable-on-assault-death",
+  "displayName": "盛り塩",
+  "description": "襲撃死したとき、ゲーム終了まで会話のみ参加できる。",
+  "abilityType": "TRIGGERED",
+  "timing": "ASSAULT_DEATH",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "morishio-talkable-on-assault-death",
+  "enabled": true
+}

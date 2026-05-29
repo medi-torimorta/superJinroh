@@ -1,0 +1,72 @@
+name: build-sea
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: SEA (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.15.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build workspaces
+        run: npm run build
+
+      - name: Generate Prisma client
+        run: npm --workspace server run prisma:generate
+
+      - name: Install appimagetool (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APPIMAGETOOL="$RUNNER_TEMP/appimagetool"
+          curl -L "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" -o "$APPIMAGETOOL"
+          chmod +x "$APPIMAGETOOL"
+          echo "APPIMAGETOOL=$APPIMAGETOOL" >> "$GITHUB_ENV"
+
+      - name: Build SEA artifact
+        run: npm run sea:build
+
+      - name: Sign Windows exe with SignPath
+        if: runner.os == 'Windows' && secrets.SIGNPATH_API_TOKEN != ''
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ secrets.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ secrets.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-path: dist/sea/win32-x64/superjinroh-unsigned.exe
+          output-artifact-path: dist/sea/win32-x64/superjinroh.exe
+          wait-for-completion: true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sea-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            dist/sea/**/superjinroh-unsigned.exe
+            dist/sea/**/superjinroh.exe
+            dist/sea/**/superjinroh.dmg
+            dist/sea/**/*.AppImage
+          if-no-files-found: error

@@ -1,0 +1,7 @@
+{
+  "roleId": "monster",
+  "displayName": "怪物",
+  "description": "規定人数を殺害すると人外陣営は勝利する。死亡すると人間陣営が勝利する。",
+  "abilityIds": ["monster-scout-assault"],
+  "enabled": true
+}

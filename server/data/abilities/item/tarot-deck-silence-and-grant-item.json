@@ -1,0 +1,11 @@
+{
+  "abilityId": "tarot-deck-silence-and-grant-item",
+  "displayName": "タロットの束",
+  "description": "生存中のプレイヤーから1人を選ぶ。そのプレイヤーは夜まで会話不能になり、アイテムを新たに1個得る。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "tarot-deck-silence-and-grant-item",
+  "enabled": true
+}

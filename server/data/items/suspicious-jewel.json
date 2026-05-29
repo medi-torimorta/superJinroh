@@ -1,0 +1,8 @@
+{
+  "itemId": "suspicious-jewel",
+  "displayName": "妖しい宝石",
+  "description": "七色に輝いている。",
+  "abilityIds": ["suspicious-jewel-detect-evil-god"],
+  "cardCount": 4,
+  "enabled": true
+}

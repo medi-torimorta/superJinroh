@@ -1,0 +1,11 @@
+{
+  "abilityId": "guard-dog-guard",
+  "displayName": "護衛",
+  "description": "夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーがこの夜襲撃の対象となった場合、夜終了時にそれを無効化し、自分は殉職する。",
+  "abilityType": "PROFESSION",
+  "timing": "NIGHT",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "guard-dog-guard",
+  "enabled": true
+}

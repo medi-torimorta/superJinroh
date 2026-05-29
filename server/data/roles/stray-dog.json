@@ -1,0 +1,7 @@
+{
+  "roleId": "stray-dog",
+  "displayName": "野良犬",
+  "description": "調査されると人外と判定される。",
+  "abilityIds": [],
+  "enabled": true
+}

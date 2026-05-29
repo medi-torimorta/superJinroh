@@ -1,0 +1,7 @@
+{
+  "roleId": "ghost",
+  "displayName": "幽霊",
+  "description": "調査を受けると成仏する。生存中、怪物の調査結果は人間になる。",
+  "abilityIds": [],
+  "enabled": true
+}

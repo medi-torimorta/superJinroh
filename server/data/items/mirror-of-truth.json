@@ -1,0 +1,8 @@
+{
+  "itemId": "mirror-of-truth",
+  "displayName": "真実の鏡",
+  "description": "鏡よ鏡。",
+  "abilityIds": ["mirror-of-truth-detect-villager"],
+  "cardCount": 4,
+  "enabled": true
+}

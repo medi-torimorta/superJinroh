@@ -1,0 +1,11 @@
+{
+  "abilityId": "sleeping-pill-block-detective",
+  "displayName": "睡眠薬",
+  "description": "夜、その夜の探偵の調査をできなくする。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "sleeping-pill-block-detective",
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "abilityId": "king-seal-double-vote",
+  "displayName": "王の印",
+  "description": "投票開始時、その投票だけ自分の投票を二票分として扱う。",
+  "abilityType": "ACTIVE",
+  "timing": "VOTE_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "king-seal-double-vote",
+  "enabled": true
+}

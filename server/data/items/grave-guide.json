@@ -1,0 +1,8 @@
+{
+  "itemId": "grave-guide",
+  "displayName": "盗掘指南書",
+  "description": "猿でもわかる。",
+  "abilityIds": ["grave-guide-steal-random-from-dead"],
+  "cardCount": 4,
+  "enabled": true
+}

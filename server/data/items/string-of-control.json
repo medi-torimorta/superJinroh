@@ -1,0 +1,8 @@
+{
+  "itemId": "string-of-control",
+  "displayName": "操り糸",
+  "description": "支配の力を秘めている。",
+  "abilityIds": ["string-of-control-force-discard"],
+  "cardCount": 4,
+  "enabled": true
+}

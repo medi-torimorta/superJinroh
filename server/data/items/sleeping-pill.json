@@ -1,0 +1,8 @@
+{
+  "itemId": "sleeping-pill",
+  "displayName": "睡眠薬",
+  "description": "強力な睡眠薬。",
+  "abilityIds": ["sleeping-pill-block-detective"],
+  "cardCount": 4,
+  "enabled": true
+}

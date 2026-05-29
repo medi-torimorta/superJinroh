@@ -1,0 +1,11 @@
+{
+  "abilityId": "string-of-control-force-discard",
+  "displayName": "操り糸",
+  "description": "生存中のプレイヤーから1人を選ぶ。そのプレイヤーはアイテムを1個捨てる。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "string-of-control-force-discard",
+  "enabled": true
+}

@@ -1,0 +1,8 @@
+{
+  "itemId": "fumie",
+  "displayName": "踏み絵",
+  "description": "冒涜的な石板。",
+  "abilityIds": ["fumie-detect-cultist"],
+  "cardCount": 4,
+  "enabled": true
+}

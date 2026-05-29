@@ -1,0 +1,11 @@
+{
+  "abilityId": "magic-book-protect",
+  "displayName": "魔導書",
+  "description": "自分以外の生存中のプレイヤーで、趣味が呪文タイプの人を1人選ぶ。選ばれたプレイヤーは、次の夜の間調査の対象にならず、次の朝終了時まで瀕死にならない。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "magic-book-protect",
+  "enabled": true
+}

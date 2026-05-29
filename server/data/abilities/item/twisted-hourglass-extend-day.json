@@ -1,0 +1,11 @@
+{
+  "abilityId": "twisted-hourglass-extend-day",
+  "displayName": "ねじれた砂時計",
+  "description": "昼開始時、裁判がある日なら昼の残り時間を180秒延長する。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "twisted-hourglass-extend-day",
+  "enabled": true
+}

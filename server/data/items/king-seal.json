@@ -1,0 +1,8 @@
+{
+  "itemId": "king-seal",
+  "displayName": "王の印",
+  "description": "奇妙な紋様。",
+  "abilityIds": ["king-seal-double-vote"],
+  "cardCount": 4,
+  "enabled": true
+}

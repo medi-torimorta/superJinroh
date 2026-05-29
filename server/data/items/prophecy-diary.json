@@ -1,0 +1,8 @@
+{
+  "itemId": "prophecy-diary",
+  "displayName": "予言日記",
+  "description": "不気味なノート。",
+  "abilityIds": ["prophecy-diary-steal-by-item"],
+  "cardCount": 4,
+  "enabled": true
+}

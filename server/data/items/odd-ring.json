@@ -1,0 +1,8 @@
+{
+  "itemId": "odd-ring",
+  "displayName": "奇妙な指輪",
+  "description": "紫色に輝いている。",
+  "abilityIds": ["odd-ring-redying-on-recover"],
+  "cardCount": 4,
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "abilityId": "warped-silver-watch-shorten-day",
+  "displayName": "歪んだ銀時計",
+  "description": "昼開始時、裁判がある日ならこの後の能力キューをすべて打ち切り、昼の残り時間を1秒にする。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "warped-silver-watch-shorten-day",
+  "enabled": true
+}

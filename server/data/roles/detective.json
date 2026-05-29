@@ -1,0 +1,7 @@
+{
+  "roleId": "detective",
+  "displayName": "探偵",
+  "description": "死亡時、ロールカードを公開する。",
+  "abilityIds": ["detective-investigate"],
+  "enabled": true
+}

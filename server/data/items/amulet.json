@@ -1,0 +1,8 @@
+{
+  "itemId": "amulet",
+  "displayName": "アミュレット",
+  "description": "年をとらなくなるらしい。",
+  "abilityIds": ["amulet-protect"],
+  "cardCount": 4,
+  "enabled": true
+}

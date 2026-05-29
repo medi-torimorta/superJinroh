@@ -1,0 +1,11 @@
+{
+  "abilityId": "special-suspicious-jewel-detect-evil-god",
+  "displayName": "宝石判定",
+  "description": "夜、生存中のプレイヤーから1人を選ぶ。そのプレイヤーが邪神か邪神でないかを判定できる。",
+  "abilityType": "TRIGGERED",
+  "timing": "NIGHT",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "special-suspicious-jewel-detect-evil-god",
+  "enabled": true
+}

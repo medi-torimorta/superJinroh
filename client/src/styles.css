@@ -1,0 +1,1051 @@
+:root {
+  font-family: 'BIZ UDPGothic', 'Hiragino Kaku Gothic ProN', sans-serif;
+  color: #f5efe2;
+  background:
+    radial-gradient(circle at top, rgba(176, 52, 48, 0.25), transparent 40%),
+    linear-gradient(180deg, #241515 0%, #16191f 55%, #0d1117 100%);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: #f5efe2;
+  background:
+    radial-gradient(circle at top, rgba(176, 52, 48, 0.25), transparent 40%),
+    linear-gradient(180deg, #241515 0%, #16191f 55%, #0d1117 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.app-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 24px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.subtitle {
+  margin: 0 0 24px;
+  color: #d1c7bc;
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.game-dashboard {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 20px;
+}
+
+.game-sidebar,
+.game-content {
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  overflow: visible;
+}
+
+.card h2,
+.card h3 {
+  margin-top: 0;
+}
+
+.panel-title-row {
+  justify-content: space-between;
+}
+
+.panel-title-row h2 {
+  margin-bottom: 0;
+}
+
+.master-title-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.master-title-addon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.is-collapsed-clickable {
+  cursor: pointer;
+}
+
+.list {
+  display: grid;
+  gap: 10px;
+}
+
+.player-row,
+.role-row,
+.info-row,
+.target-row {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.player-status-row {
+  align-items: flex-start;
+}
+
+.player-row.is-self {
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.role-row {
+  overflow: visible;
+}
+
+.role-row:hover,
+.role-row:focus-within,
+.role-set-info-row:hover,
+.role-set-info-row:focus-within {
+  z-index: 250;
+}
+
+.role-set-summary {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.role-set-meta {
+  display: grid;
+  gap: 10px;
+}
+
+.role-set-highlight {
+  display: grid;
+  gap: 4px;
+}
+
+.role-set-label {
+  font-size: 0.85rem;
+  color: #d1c7bc;
+}
+
+.role-set-value,
+.plain-info-value {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #fff0d3;
+}
+
+.role-with-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.role-row-trigger {
+  cursor: pointer;
+}
+
+.role-row-trigger.is-open .role-tooltip,
+.role-row-trigger:hover .role-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.role-row-main {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-set-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.role-with-tooltip:hover .role-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.role-tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 2000;
+  width: min(340px, calc(100vw - 64px));
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  background: rgba(15, 18, 24, 0.96);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+}
+
+.role-set-tooltip {
+  right: 0;
+  left: auto;
+  top: calc(100% + 12px);
+}
+
+.role-set-hover-target {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  z-index: 1000;
+}
+
+.role-set-hover-target:hover .role-set-tooltip,
+.role-set-hover-target:focus-within .role-set-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.game-progress-card {
+  position: relative;
+  z-index: 1000;
+}
+
+.player-list-card {
+  position: relative;
+  z-index: 1;
+}
+
+.player-area,
+.item-section-card {
+  display: grid;
+  gap: 20px;
+}
+
+.item-section-card.is-overflow {
+  background: rgba(124, 22, 22, 0.3);
+  border-color: rgba(233, 96, 96, 0.45);
+}
+
+.player-log-card .list {
+  margin-top: 16px;
+}
+
+.log-row {
+  align-items: flex-start;
+}
+
+.log-row.is-private {
+  color: #8fc2ff;
+}
+
+.player-summary {
+  display: grid;
+  gap: 4px;
+}
+
+.player-name-with-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.self-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  color: #bdbdbd;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.82rem;
+}
+
+.player-meta-line {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.player-meta-cell {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.player-meta-label {
+  margin-right: 2px;
+}
+
+.player-meta-value {
+  display: inline-block;
+}
+
+.player-role-value {
+  width: 5em;
+}
+
+.player-meta-item .player-meta-value {
+  width: 3em;
+}
+
+.player-meta-hobby .player-meta-value {
+  min-width: 6em;
+}
+
+.player-state-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.player-state-tag.is-zombie {
+  border-color: #1f6b32;
+  color: #76d28e;
+  background: rgba(11, 44, 21, 0.42);
+}
+
+.player-state-tag.is-talkable {
+  border-color: #53b8de;
+  color: #b5ecff;
+  background: rgba(18, 74, 97, 0.35);
+}
+
+.player-state-tag.is-protected {
+  border-color: #e7c34f;
+  color: #ffe9ad;
+  background: rgba(91, 72, 10, 0.36);
+}
+
+.player-state-tag.is-votable {
+  border-color: #d7923e;
+  color: #ffd8ab;
+  background: rgba(84, 50, 14, 0.4);
+}
+
+.player-state-tag.is-silent {
+  border-color: #7f8c99;
+  color: #d6dde5;
+  background: rgba(43, 50, 59, 0.42);
+}
+
+.player-role-value.is-cultist-known {
+  color: #8fc2ff;
+}
+
+.player-private-death-cause {
+  color: #8fc2ff;
+}
+
+.player-status-actions {
+  align-items: center;
+}
+
+.player-row.is-dead {
+  background: rgba(148, 36, 36, 0.2);
+  border: 1px solid rgba(210, 84, 84, 0.25);
+}
+
+.hobby-hover-target:hover,
+.hobby-hover-target:focus-within {
+  z-index: 240;
+}
+
+.hobby-hover-target:hover .hobby-tooltip,
+.hobby-hover-target:focus-within .hobby-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.hobby-tooltip {
+  left: 12px;
+  top: calc(100% + 8px);
+}
+
+.role-tooltip-image,
+.master-card-image,
+.item-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.role-tooltip-image.placeholder,
+.master-card-image.placeholder,
+.item-card-image.placeholder {
+  display: grid;
+  place-items: center;
+  color: #d1c7bc;
+  letter-spacing: 0.08em;
+}
+
+.role-tooltip-body,
+.master-card-body {
+  display: grid;
+  gap: 8px;
+}
+
+.ability-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ability-entry {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.ability-entry.is-available {
+  border: 1px solid rgba(255, 214, 153, 0.9);
+  box-shadow: 0 0 0 1px rgba(255, 214, 153, 0.28), 0 0 24px rgba(255, 214, 153, 0.08);
+}
+
+.ability-entry.is-clickable {
+  cursor: pointer;
+}
+
+.ability-entry.is-reserved {
+  background: rgba(18, 20, 26, 0.88);
+  border: 1px solid rgba(196, 172, 124, 0.72);
+}
+
+.reservation-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(8, 10, 15, 0.58);
+  pointer-events: none;
+}
+
+.reservation-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111111;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.ability-line {
+  align-items: flex-start;
+}
+
+.ability-description-inline {
+  color: #d1c7bc;
+}
+
+.title-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.faction-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.faction-human {
+  background: #2b6de0;
+}
+
+.faction-monster {
+  background: #c43a3a;
+}
+
+.faction-evil_god {
+  background: #6c47c8;
+}
+
+.hobby-type-badge,
+.ability-type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.hobby-type-skill {
+  background: #bfe7c6;
+  color: #3f3f3f;
+}
+
+.hobby-type-spell {
+  background: #f4c7d8;
+  color: #3f3f3f;
+}
+
+.hobby-type-special {
+  background: #f1d1a7;
+  color: #3f3f3f;
+}
+
+.ability-type-passive {
+  background: #ffffff;
+  color: #111111;
+}
+
+.ability-type-active {
+  background: #f3e5a2;
+  color: #111111;
+}
+
+.ability-type-triggered {
+  background: #b7b7b7;
+  color: #111111;
+}
+
+.role-tooltip-body p,
+.master-card-body p {
+  margin: 0;
+  color: #d1c7bc;
+}
+
+.master-card {
+  align-content: start;
+}
+
+.controls {
+  display: grid;
+  gap: 12px;
+}
+
+.controls-inline {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.controls-inline.compact {
+  justify-content: flex-end;
+}
+
+.setting-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.setting-field {
+  flex: 1 1 auto;
+}
+
+input,
+select {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.75rem 0.9rem;
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+}
+
+.primary {
+  background: linear-gradient(135deg, #d66a4d, #a51d2d);
+  color: white;
+}
+
+.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.danger {
+  background: rgba(160, 31, 31, 0.95);
+  color: #fff7f7;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+}
+
+.warning {
+  color: #ffb58a;
+}
+
+.section-note {
+  color: #d1c7bc;
+  font-size: 0.95rem;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.phase-timer {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 3000;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: rgba(15, 18, 24, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+  font-size: clamp(1.25rem, 2.8vw, 1.9rem);
+  font-weight: 700;
+}
+
+.pause-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 10, 15, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.ability-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4500;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 10, 15, 0.45);
+}
+
+.ability-dialog {
+  width: min(520px, 100%);
+}
+
+.target-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pause-dialog {
+  min-width: min(320px, 100%);
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background: rgba(20, 23, 31, 0.95);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.pause-dialog strong {
+  font-size: 1.3rem;
+}
+
+.item-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.item-card {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  width: 100%;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  text-align: left;
+  overflow: hidden;
+}
+
+.item-card > .item-card-image,
+.item-card > .master-card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.item-card.is-overflow-target {
+  border-color: rgba(233, 96, 96, 0.45);
+}
+
+.item-card.is-selected-for-discard {
+  background: rgba(168, 34, 34, 0.36);
+  border-color: rgba(255, 126, 126, 0.9);
+  box-shadow: 0 0 0 1px rgba(255, 126, 126, 0.35), 0 0 24px rgba(255, 126, 126, 0.16);
+}
+
+.custom-role-set-dialog {
+  width: min(720px, 100%);
+}
+
+.custom-role-set-list {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.custom-role-range-input {
+  width: 72px;
+}
+
+.item-card.actionable {
+  border-color: rgba(255, 214, 153, 0.9);
+  box-shadow: 0 0 0 1px rgba(255, 214, 153, 0.4), 0 0 24px rgba(255, 214, 153, 0.12);
+}
+
+.item-card.is-activating {
+  border-color: rgba(164, 210, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(164, 210, 255, 0.35), 0 0 24px rgba(164, 210, 255, 0.12);
+}
+
+.item-card.is-reserved {
+  background: rgba(18, 20, 26, 0.88);
+  border-color: rgba(196, 172, 124, 0.72);
+  box-shadow: 0 0 0 1px rgba(196, 172, 124, 0.24), 0 0 24px rgba(0, 0, 0, 0.18);
+}
+
+.spectator-card {
+  align-content: start;
+}
+
+.spectator-card .master-card-body {
+  gap: 10px;
+  text-align: center;
+}
+
+.spectator-card-note {
+  color: #d1c7bc;
+}
+
+.item-card:disabled {
+  opacity: 0.82;
+}
+
+.item-description {
+  color: #d1c7bc;
+}
+
+.item-activation-timing {
+  color: #c9b78f;
+  font-size: 0.82rem;
+}
+
+.log-row.is-flashing {
+  animation: log-flash 700ms ease-out;
+}
+
+@keyframes log-flash {
+  0% {
+    background: rgba(180, 180, 180, 0.36);
+  }
+  100% {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+@media (max-width: 960px) {
+  .game-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .player-status-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .player-status-actions {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .setting-row button {
+    width: 100%;
+  }
+
+  .settings-actions {
+    display: grid;
+  }
+}
+
+/* ===== dropdown option background ===== */
+select option {
+  background: #000;
+  color: #f5efe2;
+}
+
+/* ===== panel resize button ===== */
+.panel-resize-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.panel-resize-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* ===== panel title hover (role set table) ===== */
+.panel-hover-label-wrapper {
+  position: relative;
+  cursor: help;
+}
+
+.panel-hover-label {
+  color: #d1c7bc;
+  font-size: 0.95rem;
+}
+
+.panel-hover-label-wrapper:hover .panel-floating-role-set,
+.panel-hover-label-wrapper:focus-within .panel-floating-role-set {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.panel-floating-role-set {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 2700;
+  width: min(360px, calc(100vw - 48px));
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  background: rgba(15, 18, 24, 0.97);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+  cursor: auto;
+}
+
+.master-card:has(.panel-hover-label-wrapper:hover),
+.master-card:has(.panel-hover-label-wrapper:focus-within) {
+  position: relative;
+  z-index: 2600;
+}
+
+/* ===== collapsed panel ===== */
+.master-card.is-collapsed,
+.item-section-card.is-collapsed,
+.player-list-card.is-collapsed {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.master-card.is-collapsed .panel-title-row,
+.item-section-card.is-collapsed .panel-title-row,
+.player-list-card.is-collapsed .panel-title-row {
+  margin: 0;
+}
+
+.item-section-card {
+  display: grid;
+  align-content: start;
+}
+
+.item-grid {
+  align-content: start;
+}
+
+/* ===== item icons (tiny) ===== */
+.item-icon-tiny {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.player-item-icon {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* ===== setting checkbox row ===== */
+.setting-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.setting-checkbox-row input[type='checkbox'] {
+  width: auto;
+  margin: 0;
+}
+
+/* ===== bottom log bar ===== */
+.bottom-log-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3500;
+  background: rgba(12, 14, 20, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.bottom-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 16px;
+}
+
+.bottom-log-entry {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bottom-log-entry.is-private {
+  color: #8fc2ff;
+}
+
+.bottom-log-entry.is-flashing {
+  animation: log-flash 700ms ease-out;
+}
+
+.bottom-log-bar.is-expanded .bottom-log-list {
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  max-height: 35vh;
+}
+
+/* ===== app-shell bottom padding for log bar ===== */
+.app-shell {
+  padding-bottom: 100px;
+}
+

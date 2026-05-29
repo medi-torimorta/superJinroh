@@ -1,0 +1,11 @@
+{
+  "abilityId": "zombie-powder-stay-until-night-end",
+  "displayName": "ゾンビパウダー",
+  "description": "襲撃死したとき、その日の夜終了まで活動できる。",
+  "abilityType": "TRIGGERED",
+  "timing": "ASSAULT_DEATH",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "zombie-powder-stay-until-night-end",
+  "enabled": true
+}

@@ -1,0 +1,8 @@
+{
+  "itemId": "protein-bar",
+  "displayName": "プロテインバー",
+  "description": "1本で満足できる。",
+  "abilityIds": ["protein-bar-gain-two-if-single-item"],
+  "cardCount": 4,
+  "enabled": true
+}

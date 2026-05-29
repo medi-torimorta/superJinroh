@@ -1,0 +1,11 @@
+{
+  "abilityId": "special-mirror-of-truth-detect-villager",
+  "displayName": "真実の鏡判定",
+  "description": "生存中のプレイヤーを1人選び、そのプレイヤーが一般人か一般人でないかを判定する。",
+  "abilityType": "TRIGGERED",
+  "timing": "NIGHT",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "special-mirror-of-truth-detect-villager",
+  "enabled": true
+}

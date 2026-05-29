@@ -1,0 +1,8 @@
+{
+  "itemId": "tarot-deck",
+  "displayName": "タロットの束",
+  "description": "カード遊びに使える。",
+  "abilityIds": ["tarot-deck-silence-and-grant-item"],
+  "cardCount": 4,
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "abilityId": "special-protected-survive-dying",
+  "displayName": "保護",
+  "description": "瀕死になったとき、回復する。",
+  "abilityType": "TRIGGERED",
+  "timing": "SELF_DYING",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "special-protected-survive-dying",
+  "enabled": true
+}

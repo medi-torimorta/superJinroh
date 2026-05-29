@@ -1,0 +1,8 @@
+{
+  "itemId": "dying-message",
+  "displayName": "ダイイングメッセージ",
+  "description": "犯人はあいつ。",
+  "abilityIds": ["dying-message-block-assault"],
+  "cardCount": 4,
+  "enabled": true
+}

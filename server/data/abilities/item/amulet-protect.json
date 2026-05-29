@@ -1,0 +1,11 @@
+{
+  "abilityId": "amulet-protect",
+  "displayName": "アミュレット",
+  "description": "自分以外の生存中のプレイヤーを1人選ぶ。選ばれたプレイヤーを保護状態にする。",
+  "abilityType": "ACTIVE",
+  "timing": "NIGHT_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "amulet-protect",
+  "enabled": true
+}

@@ -1,0 +1,11 @@
+{
+  "abilityId": "will-reveal-role",
+  "displayName": "遺言書",
+  "description": "自分が襲撃死した後、自分の役職を公開する。",
+  "abilityType": "TRIGGERED",
+  "timing": "ASSAULT_DEATH",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "will-reveal-role",
+  "enabled": true
+}

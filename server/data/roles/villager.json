@@ -1,0 +1,7 @@
+{
+  "roleId": "villager",
+  "displayName": "一般人",
+  "description": "特別な能力を持たない。",
+  "abilityIds": [],
+  "enabled": true
+}

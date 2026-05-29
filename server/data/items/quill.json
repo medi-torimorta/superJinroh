@@ -1,0 +1,8 @@
+{
+  "itemId": "quill",
+  "displayName": "羽ペン",
+  "description": "神秘を書き起こす。",
+  "abilityIds": ["quill-shift-to-spell-or-gain-item"],
+  "cardCount": 4,
+  "enabled": true
+}

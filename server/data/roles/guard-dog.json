@@ -1,0 +1,7 @@
+{
+  "roleId": "guard-dog",
+  "displayName": "番犬",
+  "description": "調査されると人外と判定される。",
+  "abilityIds": ["guard-dog-guard"],
+  "enabled": true
+}

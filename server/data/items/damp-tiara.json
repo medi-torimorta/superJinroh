@@ -1,0 +1,8 @@
+{
+  "itemId": "damp-tiara",
+  "displayName": "湿ったティアラ",
+  "description": "ぬめりを帯びた冠。",
+  "abilityIds": ["damp-tiara-block-vote"],
+  "cardCount": 4,
+  "enabled": true
+}

@@ -1,0 +1,8 @@
+{
+  "itemId": "morishio",
+  "displayName": "盛り塩",
+  "description": "清めの塩。",
+  "abilityIds": ["morishio-talkable-on-assault-death"],
+  "cardCount": 4,
+  "enabled": true
+}

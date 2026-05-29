@@ -1,0 +1,11 @@
+{
+  "abilityId": "dying-message-block-assault",
+  "displayName": "ダイイングメッセージ",
+  "description": "自分が襲撃死したとき、次の夜、怪物は襲撃を行うことができない。",
+  "abilityType": "TRIGGERED",
+  "timing": "ASSAULT_DEATH",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "dying-message-block-assault",
+  "enabled": true
+}

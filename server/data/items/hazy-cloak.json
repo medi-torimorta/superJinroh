@@ -1,0 +1,8 @@
+{
+  "itemId": "hazy-cloak",
+  "displayName": "霞んだ外套",
+  "description": "霧がかかっているようだ。",
+  "abilityIds": ["hazy-cloak-untargetable-vote"],
+  "cardCount": 4,
+  "enabled": true
+}

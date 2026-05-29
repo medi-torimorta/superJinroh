@@ -1,0 +1,8 @@
+{
+  "itemId": "substitute-doll",
+  "displayName": "身代わり人形",
+  "description": "五寸釘とセット。",
+  "abilityIds": ["substitute-doll-redirect-dying"],
+  "cardCount": 4,
+  "enabled": true
+}

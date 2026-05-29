@@ -1,0 +1,11 @@
+{
+  "abilityId": "health-pack-heal",
+  "displayName": "応急キット",
+  "description": "瀕死状態を回復する。",
+  "abilityType": "TRIGGERED",
+  "timing": "SELF_DYING",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "health-pack-heal",
+  "enabled": true
+}

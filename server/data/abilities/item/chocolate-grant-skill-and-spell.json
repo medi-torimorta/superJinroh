@@ -1,0 +1,11 @@
+{
+  "abilityId": "chocolate-grant-skill-and-spell",
+  "displayName": "チョコレート",
+  "description": "生存中のプレイヤーで、趣味が技能タイプの人を1人、呪文タイプの人を1人選ぶ。それらのプレイヤーはアイテムを1枚得る。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "chocolate-grant-skill-and-spell",
+  "enabled": true
+}

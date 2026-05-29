@@ -1,0 +1,11 @@
+{
+  "abilityId": "odd-ring-redying-on-recover",
+  "displayName": "奇妙な指輪",
+  "description": "プレイヤーが瀕死から回復したとき、もう一度瀕死にする。",
+  "abilityType": "TRIGGERED",
+  "timing": "SELF_RECOVERED",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "odd-ring-redying-on-recover",
+  "enabled": true
+}

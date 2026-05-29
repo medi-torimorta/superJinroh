@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data/app.db"
+}
+
+model PlayerIdentity {
+  ipAddress   String   @id
+  displayName String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastSeenAt  DateTime @default(now())
+}
+
+model AppSetting {
+  settingKey   String   @id
+  settingValue String
+  updatedAt    DateTime @updatedAt
+}
+
+model Game {
+  gameId                   String             @id
+  status                   String
+  selectedRoleSetId        String
+  dayNumber                Int
+  phaseType                String
+  startedAt                DateTime
+  finishedAt               DateTime?
+  monsterWinRequiredKills  Int
+  monsterKillCount         Int
+  monsterKillGoalReachedDay Int?
+  players                  GamePlayer[]
+  deck                     GameItemDeck?
+  votes                    VoteRecord[]
+  deaths                   DeathRecord[]
+  actions                  ActionLog[]
+  nightActions             NightAction[]
+}
+
+model GamePlayer {
+  gamePlayerId String   @id
+  gameId       String
+  seatOrder    Int
+  ipAddress    String
+  displayName  String
+  roleId       String
+  hobbyId      String
+  status       String
+  isConnected  Boolean
+  deathCause   String?
+  game         Game     @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+  deckCards    GameItemDeckCard[]
+}
+
+model GameItemDeck {
+  gameItemDeckId String            @id
+  gameId         String            @unique
+  drawCount      Int
+  discardCount   Int
+  createdAt      DateTime          @default(now())
+  game           Game              @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+  cards          GameItemDeckCard[]
+}
+
+model GameItemDeckCard {
+  gameItemDeckCardId String    @id
+  gameItemDeckId     String
+  itemId             String
+  serialInItem       Int
+  zone               String
+  drawOrder          Int
+  ownerGamePlayerId  String?
+  usedAt             DateTime?
+  deck               GameItemDeck @relation(fields: [gameItemDeckId], references: [gameItemDeckId], onDelete: Cascade)
+  owner              GamePlayer?   @relation(fields: [ownerGamePlayerId], references: [gamePlayerId])
+}
+
+model VoteRecord {
+  voteRecordId        String   @id
+  gameId              String
+  dayNumber           Int
+  voterGamePlayerId   String
+  targetGamePlayerId  String
+  createdAt           DateTime @default(now())
+  game                Game     @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+}
+
+model DeathRecord {
+  deathRecordId          String   @id
+  gameId                 String
+  gamePlayerId           String
+  dayNumber              Int
+  phaseType              String
+  cause                  String
+  causedByGamePlayerId   String?
+  createdAt              DateTime @default(now())
+  game                   Game     @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+}
+
+model ActionLog {
+  actionLogId String   @id
+  gameId      String?
+  category    String
+  payloadJson String
+  createdAt   DateTime @default(now())
+  game        Game?    @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+}
+
+model NightAction {
+  nightActionId       String   @id
+  gameId              String
+  dayNumber           Int
+  actorGamePlayerId   String
+  actionKey           String
+  targetGamePlayerId  String?
+  submittedAt         DateTime @default(now())
+  game                Game     @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+
+  @@unique([gameId, dayNumber, actorGamePlayerId, actionKey])
+}

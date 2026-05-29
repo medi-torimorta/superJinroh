@@ -1,0 +1,8 @@
+{
+  "hobbyId": "stalker",
+  "displayName": "ストーカー",
+  "description": "準備中",
+  "hobbyType": "SKILL",
+  "abilityIds": ["stealth"],
+  "enabled": true
+}

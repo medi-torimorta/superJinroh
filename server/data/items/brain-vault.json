@@ -1,0 +1,8 @@
+{
+  "itemId": "brain-vault",
+  "displayName": "脳保管器",
+  "description": "未知の金属でできた容器。",
+  "abilityIds": ["brain-vault-votable-on-assault-death"],
+  "cardCount": 4,
+  "enabled": true
+}

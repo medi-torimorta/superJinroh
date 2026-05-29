@@ -1,0 +1,11 @@
+{
+  "abilityId": "brain-vault-votable-on-assault-death",
+  "displayName": "脳保管器",
+  "description": "襲撃死したとき、その日の間だけ投票ができる。",
+  "abilityType": "TRIGGERED",
+  "timing": "ASSAULT_DEATH",
+  "canCancel": true,
+  "targetCount": 0,
+  "implementationKey": "brain-vault-votable-on-assault-death",
+  "enabled": true
+}

@@ -1,0 +1,8 @@
+{
+  "itemId": "chocolate",
+  "displayName": "チョコレート",
+  "description": "みんな幸せになる。",
+  "abilityIds": ["chocolate-grant-skill-and-spell"],
+  "cardCount": 4,
+  "enabled": true
+}

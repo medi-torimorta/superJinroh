@@ -1,0 +1,8 @@
+{
+  "itemId": "zombie-powder",
+  "displayName": "ゾンビパウダー",
+  "description": "不浄の粉末。",
+  "abilityIds": ["zombie-powder-stay-until-night-end"],
+  "cardCount": 4,
+  "enabled": true
+}
