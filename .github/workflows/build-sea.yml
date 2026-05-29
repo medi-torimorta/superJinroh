@@ -16,6 +16,7 @@ jobs:
       SIGNPATH_PROJECT_SLUG: ${{ secrets.SIGNPATH_PROJECT_SLUG }}
       SIGNPATH_SIGNING_POLICY_SLUG: ${{ secrets.SIGNPATH_SIGNING_POLICY_SLUG }}
     permissions:
+      actions: read
       contents: read
     strategy:
       fail-fast: false
@@ -51,6 +52,7 @@ jobs:
           curl -L "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" -o "$APPIMAGETOOL"
           chmod +x "$APPIMAGETOOL"
           echo "APPIMAGETOOL=$APPIMAGETOOL" >> "$GITHUB_ENV"
+          echo "APPIMAGE_EXTRACT_AND_RUN=1" >> "$GITHUB_ENV"
 
       - name: Build SEA artifact
         run: npm run sea:build
@@ -65,6 +67,15 @@ jobs:
           test -n "$SIGNPATH_PROJECT_SLUG"
           test -n "$SIGNPATH_SIGNING_POLICY_SLUG"
 
+      - name: Upload unsigned Windows exe for SignPath
+        if: runner.os == 'Windows' && env.SIGNPATH_API_TOKEN != ''
+        id: upload_unsigned_windows_exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-windows-exe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/sea/win32-x64/superjinroh.exe
+          if-no-files-found: error
+
       - name: Sign Windows exe with SignPath
         if: runner.os == 'Windows' && env.SIGNPATH_API_TOKEN != ''
         uses: signpath/github-action-submit-signing-request@v1
@@ -73,15 +84,19 @@ jobs:
           organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
           project-slug: ${{ secrets.SIGNPATH_PROJECT_SLUG }}
           signing-policy-slug: ${{ secrets.SIGNPATH_SIGNING_POLICY_SLUG }}
-          artifact-path: dist/sea/win32-x64/superjinroh.exe
-          output-artifact-path: dist/sea/win32-x64/superjinroh-signed.exe
+          github-artifact-id: ${{ steps.upload_unsigned_windows_exe.outputs.artifact-id }}
+          output-artifact-directory: dist/sea/win32-x64/signed
           wait-for-completion: true
 
       - name: Replace unsigned exe with signed exe
         if: runner.os == 'Windows' && env.SIGNPATH_API_TOKEN != ''
         shell: pwsh
         run: |
-          Move-Item -Path dist/sea/win32-x64/superjinroh-signed.exe -Destination dist/sea/win32-x64/superjinroh.exe -Force
+          $signedExe = Get-ChildItem -Path dist/sea/win32-x64/signed -Filter superjinroh.exe -Recurse | Select-Object -First 1
+          if (-not $signedExe) {
+            throw "Signed superjinroh.exe was not found in dist/sea/win32-x64/signed"
+          }
+          Move-Item -Path $signedExe.FullName -Destination dist/sea/win32-x64/superjinroh.exe -Force
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

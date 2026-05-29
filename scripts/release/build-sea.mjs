@@ -155,7 +155,12 @@ function packageLinux() {
 
   const appImagePath = path.join(outRoot, 'superjinroh-x86_64.AppImage');
   const appImageTool = process.env.APPIMAGETOOL || 'appimagetool';
-  run(appImageTool, [appDir, appImagePath]);
+  run(appImageTool, [appDir, appImagePath], {
+    env: {
+      ...process.env,
+      APPIMAGE_EXTRACT_AND_RUN: process.env.APPIMAGE_EXTRACT_AND_RUN ?? '1',
+    },
+  });
   console.log(`Created ${appImagePath}`);
 }
 
