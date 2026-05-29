@@ -1,0 +1,8 @@
+{
+  "itemId": "grotesque-idol",
+  "displayName": "異様な偶像",
+  "description": "悪夢から持ち帰った像。",
+  "abilityIds": ["grotesque-idol-disable-items-on-execution-death"],
+  "cardCount": 4,
+  "enabled": true
+}

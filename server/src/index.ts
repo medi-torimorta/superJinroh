@@ -275,6 +275,7 @@ interface RuntimeGame {
   investigateBlockedNightByPlayerId: Map<string, number>;
   blockedDetectiveInvestigateNightByPlayerId: Map<string, number>;
   blockedMonsterAssaultNightDay: number | null;
+  itemsDisabledUntilNightEndDay: number | null;
   bonusVoteCountByPlayerId: Map<string, number>;
   blockedVoteByPlayerId: Set<string>;
   untargetableVoteTargetPlayerIds: Set<string>;
@@ -1190,6 +1191,9 @@ function getNextAlivePlayer(game: RuntimeGame, actorId: string) {
 }
 
 function areItemActionsUnlocked(game: RuntimeGame) {
+  if (game.itemsDisabledUntilNightEndDay !== null && game.itemsDisabledUntilNightEndDay >= game.dayNumber) {
+    return false;
+  }
   return game.dayNumber > 1 || (game.dayNumber === 1 && (game.phase === 'DAY' || game.phase === 'VOTE' || game.phase === 'NIGHT'));
 }
 
@@ -1938,9 +1942,14 @@ function isProtectedFromDying(game: RuntimeGame, player: RuntimePlayer): boolean
 
 function getTriggeredAbilitySources(game: RuntimeGame, player: RuntimePlayer, timing: AbilityTriggerTiming): TriggeredAbilitySource[] {
   const sources: TriggeredAbilitySource[] = [];
+  const grotesqueIdolImplementationKey = 'grotesque-idol-disable-items-on-execution-death';
+  const itemTriggersLocked = !areItemActionsUnlocked(game);
 
   const shouldIncludeAbility = (ability: AbilityDefinition) => {
     if (ability.implementationKey === 'crystal-skull-talkable-on-execution-death' && player.deathCause !== 'EXECUTION') {
+      return false;
+    }
+    if (ability.implementationKey === grotesqueIdolImplementationKey && player.deathCause !== 'EXECUTION') {
       return false;
     }
     return true;
@@ -1965,28 +1974,42 @@ function getTriggeredAbilitySources(game: RuntimeGame, player: RuntimePlayer, ti
     }
   }
 
-  for (const card of getInHandCards(game, player.id)) {
+  const inHandCards = getInHandCards(game, player.id);
+  const hasGrotesqueIdolExecutionTrigger = !itemTriggersLocked && timing === 'SELF_DEATH' && player.deathCause === 'EXECUTION' && inHandCards.some((card) => {
     const item = runtime.itemById.get(card.itemId);
-    if (!item) {
-      continue;
-    }
-    for (const abilityId of item.abilityIds) {
-      const ability = runtime.abilityById.get(abilityId);
-      if (ability && getAbilityTriggerTiming(ability) === timing && shouldIncludeAbility(ability)) {
+    return item?.abilityIds.some((abilityId) => runtime.abilityById.get(abilityId)?.implementationKey === grotesqueIdolImplementationKey) ?? false;
+  });
+
+  if (!itemTriggersLocked) {
+    for (const card of inHandCards) {
+      const item = runtime.itemById.get(card.itemId);
+      if (!item) {
+        continue;
+      }
+      for (const abilityId of item.abilityIds) {
+        const ability = runtime.abilityById.get(abilityId);
+        if (!ability || getAbilityTriggerTiming(ability) !== timing || !shouldIncludeAbility(ability)) {
+          continue;
+        }
+        if (hasGrotesqueIdolExecutionTrigger && ability.implementationKey !== grotesqueIdolImplementationKey) {
+          continue;
+        }
         sources.push({ sourceType: 'ITEM', sourceId: card.itemId, ability, itemCardId: card.cardId });
       }
     }
-  }
 
-  for (const granted of getGrantedTriggeredAbilities(game, player.id)) {
-    const ability = runtime.abilityById.get(granted.abilityId);
-    if (ability && getAbilityTriggerTiming(ability) === timing && shouldIncludeAbility(ability)) {
-      sources.push({
-        sourceType: 'ITEM',
-        sourceId: granted.sourceItemId,
-        ability,
-        itemCardId: granted.grantId,
-      });
+    if (!hasGrotesqueIdolExecutionTrigger) {
+      for (const granted of getGrantedTriggeredAbilities(game, player.id)) {
+        const ability = runtime.abilityById.get(granted.abilityId);
+        if (ability && getAbilityTriggerTiming(ability) === timing && shouldIncludeAbility(ability)) {
+          sources.push({
+            sourceType: 'ITEM',
+            sourceId: granted.sourceItemId,
+            ability,
+            itemCardId: granted.grantId,
+          });
+        }
+      }
     }
   }
 
@@ -2743,6 +2766,12 @@ async function resolveQueuedAbility(game: RuntimeGame, queued: RuntimeQueuedAbil
     }
     resolved = true;
     await logAction('ability.resolved', { actorId: actor.id, abilityId: ability.abilityId }, game.gameId);
+  } else if (ability.implementationKey === 'grotesque-idol-disable-items-on-execution-death') {
+    if (actor.deathCause === 'EXECUTION') {
+      game.itemsDisabledUntilNightEndDay = game.dayNumber;
+    }
+    resolved = true;
+    await logAction('ability.resolved', { actorId: actor.id, abilityId: ability.abilityId, blockedNightDay: game.dayNumber }, game.gameId);
   } else if (ability.implementationKey === 'odd-ring-redying-on-recover') {
     await setPlayerStatus(game, actor, 'DYING', { reason: 'item.oddRing' });
     resolved = true;
@@ -3319,6 +3348,9 @@ async function resolveNightEndEffects(game: RuntimeGame) {
   if (game.blockedMonsterAssaultNightDay === game.dayNumber) {
     game.blockedMonsterAssaultNightDay = null;
   }
+  if (game.itemsDisabledUntilNightEndDay === game.dayNumber) {
+    game.itemsDisabledUntilNightEndDay = null;
+  }
   for (const player of game.players) {
     if (hasPlayerState(player, 'ZOMBIE')) {
       removePlayerState(player, 'ZOMBIE');
@@ -3386,6 +3418,7 @@ async function startGame() {
     investigateBlockedNightByPlayerId: new Map(),
     blockedDetectiveInvestigateNightByPlayerId: new Map(),
     blockedMonsterAssaultNightDay: null,
+    itemsDisabledUntilNightEndDay: null,
     bonusVoteCountByPlayerId: new Map(),
     blockedVoteByPlayerId: new Set(),
     untargetableVoteTargetPlayerIds: new Set(),

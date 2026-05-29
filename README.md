@@ -26,7 +26,7 @@ npm run sea:build
 ```
 
 - 出力先: `dist/sea/<platform>-<arch>/`
-- Windows: `superjinroh-unsigned.exe`, 
+- Windows: `superjinroh.exe`, 
 - macOS: `superjinroh.dmg`
 - Linux: `superjinroh-x86_64.AppImage`
 
@@ -38,7 +38,6 @@ Workflow: `.github/workflows/build-sea.yml`
 
 - Trigger: `workflow_dispatch` および `v*` タグpush
 - Matrix: `windows-latest`, `macos-latest`, `ubuntu-latest`
-- windows署名版を以下に出力します：`dist/sea/win32-x64/superjinroh.exe`
 - `v*` タグ push 時は GitHub Releases に以下をアップロードします。
 	- `superjinroh.dmg` (macOS)
 	- `superjinroh-x86_64.AppImage` (Linux)

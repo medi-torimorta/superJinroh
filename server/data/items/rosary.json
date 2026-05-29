@@ -1,0 +1,8 @@
+{
+  "itemId": "rosary",
+  "displayName": "ロザリオ",
+  "description": "特別な効果はない。",
+  "abilityIds": [],
+  "cardCount": 4,
+  "enabled": true
+}

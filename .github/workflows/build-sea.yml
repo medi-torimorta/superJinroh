@@ -1,4 +1,4 @@
-name: build-sea
+﻿name: build-sea
 
 on:
   workflow_dispatch:
@@ -10,13 +10,7 @@ jobs:
   build:
     name: SEA (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    env:
-      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
-      SIGNPATH_ORGANIZATION_ID: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
-      SIGNPATH_PROJECT_SLUG: ${{ secrets.SIGNPATH_PROJECT_SLUG }}
-      SIGNPATH_SIGNING_POLICY_SLUG: ${{ secrets.SIGNPATH_SIGNING_POLICY_SLUG }}
     permissions:
-      actions: read
       contents: read
     strategy:
       fail-fast: false
@@ -56,47 +50,6 @@ jobs:
 
       - name: Build SEA artifact
         run: npm run sea:build
-
-      - name: Require SignPath secrets for tag release (Windows)
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/')
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "$SIGNPATH_API_TOKEN"
-          test -n "$SIGNPATH_ORGANIZATION_ID"
-          test -n "$SIGNPATH_PROJECT_SLUG"
-          test -n "$SIGNPATH_SIGNING_POLICY_SLUG"
-
-      - name: Upload unsigned Windows exe for SignPath
-        if: runner.os == 'Windows' && env.SIGNPATH_API_TOKEN != ''
-        id: upload_unsigned_windows_exe
-        uses: actions/upload-artifact@v4
-        with:
-          name: unsigned-windows-exe-${{ github.run_id }}-${{ github.run_attempt }}
-          path: dist/sea/win32-x64/superjinroh.exe
-          if-no-files-found: error
-
-      - name: Sign Windows exe with SignPath
-        if: runner.os == 'Windows' && env.SIGNPATH_API_TOKEN != ''
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ secrets.SIGNPATH_PROJECT_SLUG }}
-          signing-policy-slug: ${{ secrets.SIGNPATH_SIGNING_POLICY_SLUG }}
-          github-artifact-id: ${{ steps.upload_unsigned_windows_exe.outputs.artifact-id }}
-          output-artifact-directory: dist/sea/win32-x64/signed
-          wait-for-completion: true
-
-      - name: Replace unsigned exe with signed exe
-        if: runner.os == 'Windows' && env.SIGNPATH_API_TOKEN != ''
-        shell: pwsh
-        run: |
-          $signedExe = Get-ChildItem -Path dist/sea/win32-x64/signed -Filter superjinroh.exe -Recurse | Select-Object -First 1
-          if (-not $signedExe) {
-            throw "Signed superjinroh.exe was not found in dist/sea/win32-x64/signed"
-          }
-          Move-Item -Path $signedExe.FullName -Destination dist/sea/win32-x64/superjinroh.exe -Force
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

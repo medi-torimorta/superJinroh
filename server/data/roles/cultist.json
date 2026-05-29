@@ -1,7 +1,7 @@
 {
   "roleId": "cultist",
   "displayName": "崇拝者",
-  "description": "準備中",
+  "description": "0日目の夜、怪物の役職を持つプレイヤーを知ることができます。",
   "abilityIds": [],
   "enabled": true
 }

@@ -1,0 +1,11 @@
+{
+  "abilityId": "grotesque-idol-disable-items-on-execution-death",
+  "displayName": "異様な偶像",
+  "description": "自分が処刑死したとき、夜終了時まで誰もアイテムを使用できない。",
+  "abilityType": "TRIGGERED",
+  "timing": "SELF_DEATH",
+  "canCancel": false,
+  "targetCount": 0,
+  "implementationKey": "grotesque-idol-disable-items-on-execution-death",
+  "enabled": true
+}

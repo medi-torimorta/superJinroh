@@ -18,6 +18,7 @@ import type {
   RoleDefinition,
   RoleSetDefinition,
 } from '@super-jinroh/shared';
+import packageJson from '../../package.json';
 
 const DEFAULT_PORT = 11037;
 const CLIENT_ID_STORAGE_KEY = 'super-jinroh-client-id';
@@ -86,6 +87,7 @@ function getWsUrl(clientId: string): string {
 const API_BASE = getApiBase();
 const CLIENT_ID = getClientId();
 const WS_URL = getWsUrl(CLIENT_ID);
+const APP_VERSION = packageJson.version;
 
 function mediaUrl(imagePath: string | null): string | null {
   return imagePath ? `${API_BASE}${imagePath}` : null;
@@ -1235,7 +1237,11 @@ export function App() {
   return (
     <main className="app-shell">
       {game ? <div className="phase-timer">{game.dayNumber}日目 {phaseLabel(game.phase)} ({timerLabel})</div> : null}
-      <h1 className="title">超級の人狼</h1>
+      <div className="title-row">
+        <img className="title-icon" src={`${API_BASE}/master-data-images/ui/superJinroh.png`} alt="" aria-hidden="true" />
+        <h1 className="title">超級の人狼</h1>
+        <span className="title-version">ver. {APP_VERSION}</span>
+      </div>
       <p className="subtitle">能力付きアイテム人狼だよ！</p>
       <div className="controls-inline">
         <div className="badge">{statusMessage}</div>
