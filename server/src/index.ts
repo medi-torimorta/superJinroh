@@ -506,6 +506,9 @@ async function discoverUpnpGateway(client: UpnpClient): Promise<DiscoveredUpnpGa
       if (!location) {
         return;
       }
+      if (rankUpnpGatewayLocation(location) <= 0) {
+        return;
+      }
       candidates.push({ address, location });
       const selected = bestCandidate();
       if (selected && rankUpnpGatewayLocation(selected.location) >= 400) {

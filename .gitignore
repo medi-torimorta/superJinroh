@@ -5,6 +5,5 @@ server/data/app.db
 server/prisma/dev.db
 client/dist/
 docs/
-start-server.bat
 logs/
 *.log
