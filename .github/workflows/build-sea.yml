@@ -37,17 +37,6 @@ jobs:
       - name: Generate Prisma client
         run: npm --workspace server run prisma:generate
 
-      - name: Install appimagetool (Linux)
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          set -euxo pipefail
-          APPIMAGETOOL="$RUNNER_TEMP/appimagetool"
-          curl -L "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" -o "$APPIMAGETOOL"
-          chmod +x "$APPIMAGETOOL"
-          echo "APPIMAGETOOL=$APPIMAGETOOL" >> "$GITHUB_ENV"
-          echo "APPIMAGE_EXTRACT_AND_RUN=1" >> "$GITHUB_ENV"
-
       - name: Build SEA artifact
         run: npm run sea:build
 
@@ -56,9 +45,8 @@ jobs:
         with:
           name: sea-${{ runner.os }}-${{ runner.arch }}
           path: |
-            dist/sea/**/superjinroh.exe
-            dist/sea/**/superjinroh.dmg
-            dist/sea/**/*.AppImage
+            dist/sea/**/*.zip
+            dist/sea/**/*.tar.gz
           if-no-files-found: error
 
   release:
@@ -80,15 +68,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$(find release-assets -type f -name 'superjinroh.exe' | head -n 1)"
-          test -n "$(find release-assets -type f -name 'superjinroh.dmg' | head -n 1)"
-          test -n "$(find release-assets -type f -name '*.AppImage' | head -n 1)"
+          test -n "$(find release-assets -type f -name 'superjinroh-win32-*.zip' | head -n 1)"
+          test -n "$(find release-assets -type f -name 'superjinroh-darwin-*.zip' | head -n 1)"
+          test -n "$(find release-assets -type f -name 'superjinroh-linux-*.tar.gz' | head -n 1)"
 
       - name: Upload assets to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release-assets/**/superjinroh.exe
-            release-assets/**/superjinroh.dmg
-            release-assets/**/*.AppImage
+            release-assets/**/superjinroh-win32-*.zip
+            release-assets/**/superjinroh-darwin-*.zip
+            release-assets/**/superjinroh-linux-*.tar.gz
           fail_on_unmatched_files: true

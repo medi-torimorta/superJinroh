@@ -39,17 +39,36 @@ import type {
   RoleSetDefinition,
 } from '@super-jinroh/shared';
 
-const prisma = new PrismaClient();
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server, path: '/ws' });
 const currentFilePath = fileURLToPath(import.meta.url);
 const serverSrcDir = path.dirname(currentFilePath);
 const serverRootDir = path.resolve(serverSrcDir, '..');
 const productRootDir = path.resolve(serverRootDir, '..');
 const clientDistDir = path.join(productRootDir, 'client', 'dist');
 const clientIndexPath = path.join(clientDistDir, 'index.html');
-const packagedExecutableDir = process.env.SUPER_JINROH_EXECUTABLE_DIR?.trim() || null;
+
+function dataPath(...parts: string[]) {
+  return path.join(serverRootDir, 'data', ...parts);
+}
+
+function appConfigPath() {
+  const packagedConfigPath = path.join(productRootDir, 'config.json');
+  if (existsSync(packagedConfigPath)) {
+    return packagedConfigPath;
+  }
+  return dataPath('config.json');
+}
+
+const prismaDatabasePath = dataPath('app.db');
+const prismaDatasourceUrl = `file:${prismaDatabasePath.replace(/\\/g, '/')}`;
+
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = prismaDatasourceUrl;
+}
+
+const prisma = new PrismaClient({ datasourceUrl: prismaDatasourceUrl });
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server, path: '/ws' });
 
 const DEFAULT_PORT = 11037;
 const CLIENT_ID_HEADER = 'x-super-jinroh-client-id';
@@ -335,14 +354,7 @@ const GRANTED_SPECIAL_ABILITY_IDS_BY_IMPLEMENTATION_KEY = new Map<string, string
   ['handgun-protect', PROTECTED_SPECIAL_ABILITY_ID],
 ]);
 
-function dataPath(...parts: string[]) {
-  return path.join(serverRootDir, 'data', ...parts);
-}
-
 function customRoleSetsDirPath() {
-  if (packagedExecutableDir) {
-    return path.join(packagedExecutableDir, 'role-sets', 'custom');
-  }
   return dataPath('role-sets', 'custom');
 }
 
@@ -443,7 +455,7 @@ async function readJsonFile<T>(filePath: string): Promise<T> {
 }
 
 async function loadAppConfig() {
-  runtime.config = appConfigSchema.parse(await readJsonFile<AppConfig>(dataPath('config.json')));
+  runtime.config = appConfigSchema.parse(await readJsonFile<AppConfig>(appConfigPath()));
 }
 
 function resolveLocalIpv4Address(): string | null {
@@ -555,6 +567,16 @@ async function getUpnpPublicIp(gatewayLocation: string) {
   return response?.NewExternalIPAddress?.trim() || null;
 }
 
+function isUpnpMappingAlreadyOpen(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes('718')
+    || message.includes('ConflictInMappingEntry')
+    || message.includes('already exists')
+    || message.includes('already mapped')
+  );
+}
+
 async function resolveClientShareAddress(): Promise<string | null> {
   let client: UpnpClient | null = null;
   let ownsClient = false;
@@ -607,6 +629,10 @@ async function openUpnpPortMapping() {
     console.log(`UPnP port mapping enabled for tcp/${getServerPort()} on ${privateHost}.`);
   } catch (error) {
     client.close();
+    if (isUpnpMappingAlreadyOpen(error)) {
+      console.log(`UPnP port mapping already exists for tcp/${getServerPort()}; skipping.`);
+      return;
+    }
     console.warn(
       `UPnP port mapping failed for tcp/${getServerPort()}: ${error instanceof Error ? error.message : String(error)}`,
     );
@@ -771,12 +797,9 @@ async function listJsonFilesRecursive(dirPath: string): Promise<string[]> {
 
 async function loadRoleSets() {
   const dir = dataPath('role-sets');
-  const bundledCustomDir = path.join(dir, 'custom');
-  const bundledFiles = (await listJsonFilesRecursive(dir)).filter((file) => !file.startsWith(`${bundledCustomDir}${path.sep}`));
   const customDir = customRoleSetsDirPath();
   await fs.mkdir(customDir, { recursive: true });
-  const customFiles = await listJsonFilesRecursive(customDir);
-  const files = [...bundledFiles, ...customFiles];
+  const files = await listJsonFilesRecursive(dir);
   const loaded: RoleSetDefinition[] = [];
   for (const file of files) {
     const parsed = roleSetSchema.parse(await readJsonFile<RoleSetDefinition>(file));

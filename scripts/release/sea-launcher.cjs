@@ -3,7 +3,7 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
 function resolveEntryPoint() {
-  const packaged = path.join(path.dirname(process.execPath), 'product', 'server', 'dist', 'index.js');
+  const packaged = path.join(path.dirname(process.execPath), 'server', 'dist', 'index.js');
   if (fs.existsSync(packaged)) {
     return { entry: packaged, packaged: true };
   }
@@ -17,10 +17,7 @@ function resolveEntryPoint() {
 }
 
 (async () => {
-  const { entry, packaged } = resolveEntryPoint();
-  if (packaged) {
-    process.env.SUPER_JINROH_EXECUTABLE_DIR = path.dirname(process.execPath);
-  }
+  const { entry } = resolveEntryPoint();
   const serverRoot = path.dirname(path.dirname(entry));
   process.chdir(serverRoot);
   await import(pathToFileURL(entry).href);

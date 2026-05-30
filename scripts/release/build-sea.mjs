@@ -13,8 +13,7 @@ const platform = process.platform;
 const arch = process.arch;
 const exeName = platform === 'win32' ? 'superjinroh.exe' : 'superjinroh';
 const outRoot = path.join(productRoot, 'dist', 'sea', `${platform}-${arch}`);
-const appRoot = path.join(outRoot, 'app');
-const exePath = path.join(appRoot, exeName);
+const exePath = path.join(outRoot, exeName);
 
 const assetsDir = path.join(productRoot, 'scripts', 'release', 'assets');
 const packageJson = JSON.parse(fs.readFileSync(path.join(productRoot, 'package.json'), 'utf8'));
@@ -39,9 +38,46 @@ function run(command, args, options = {}) {
   }
 }
 
+function waitForRetry(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+function removePathWithRetry(targetPath) {
+  let lastError = null;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (!(error instanceof Error) || !('code' in error) || (error.code !== 'EBUSY' && error.code !== 'EPERM')) {
+        throw error;
+      }
+      lastError = error;
+      waitForRetry(150);
+    }
+  }
+  if (lastError) {
+    throw lastError;
+  }
+}
+
 function ensureEmptyDir(dirPath) {
-  fs.rmSync(dirPath, { recursive: true, force: true });
   fs.mkdirSync(dirPath, { recursive: true });
+  for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
+    removePathWithRetry(path.join(dirPath, entry.name));
+  }
+}
+
+function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
+
+function packageNameToPath(packageName) {
+  return path.join(...packageName.split('/'));
+}
+
+function readJsonFile(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
 function copyDirRecursive(sourceDir, targetDir) {
@@ -65,12 +101,72 @@ function copyDirRecursive(sourceDir, targetDir) {
   }
 }
 
-function ensureCustomRoleSetDir(baseDir) {
-  const customDir = path.join(baseDir, 'role-sets', 'custom');
-  fs.mkdirSync(customDir, { recursive: true });
-  const gitkeepPath = path.join(customDir, '.gitkeep');
-  if (!fs.existsSync(gitkeepPath)) {
-    fs.writeFileSync(gitkeepPath, '');
+function collectRuntimeDependencyNames(tree, names = new Set()) {
+  if (!tree || typeof tree !== 'object') {
+    return names;
+  }
+
+  for (const [name, dependency] of Object.entries(tree.dependencies ?? {})) {
+    names.add(name);
+    collectRuntimeDependencyNames(dependency, names);
+  }
+
+  return names;
+}
+
+function getServerRuntimeDependencyNames() {
+  const lockfile = readJsonFile(path.join(productRoot, 'package-lock.json'));
+  const serverPackage = readJsonFile(path.join(productRoot, 'server', 'package.json'));
+  const packageEntries = lockfile.packages ?? {};
+  const names = new Set();
+
+  function visitPackage(packageName) {
+    if (names.has(packageName)) {
+      return;
+    }
+    names.add(packageName);
+
+    const packageEntry = packageEntries[`node_modules/${packageNameToPath(packageName)}`];
+    for (const dependencyName of Object.keys(packageEntry?.dependencies ?? {})) {
+      visitPackage(dependencyName);
+    }
+  }
+
+  for (const dependencyName of Object.keys(serverPackage.dependencies ?? {})) {
+    visitPackage(dependencyName);
+  }
+
+  return Array.from(names).sort();
+}
+
+function copySharedRuntimePackage(targetPackageDir) {
+  ensureEmptyDir(targetPackageDir);
+  copyDirRecursive(path.join(productRoot, 'shared', 'dist'), path.join(targetPackageDir, 'dist'));
+  copyFileIfExists(path.join(productRoot, 'shared', 'package.json'), path.join(targetPackageDir, 'package.json'));
+}
+
+function stageRuntimeNodeModules(targetNodeModulesDir) {
+  ensureDir(targetNodeModulesDir);
+
+  for (const packageName of getServerRuntimeDependencyNames()) {
+    const packageRelativePath = packageNameToPath(packageName);
+    const targetPackageDir = path.join(targetNodeModulesDir, packageRelativePath);
+
+    if (packageName === '@super-jinroh/shared') {
+      copySharedRuntimePackage(targetPackageDir);
+      continue;
+    }
+
+    const sourcePackageDir = path.join(productRoot, 'node_modules', packageRelativePath);
+    if (!fs.existsSync(sourcePackageDir)) {
+      throw new Error(`Runtime dependency package not found: ${packageName}`);
+    }
+    copyDirRecursive(sourcePackageDir, targetPackageDir);
+  }
+
+  const prismaClientDir = path.join(productRoot, 'node_modules', '.prisma', 'client');
+  if (fs.existsSync(prismaClientDir)) {
+    copyDirRecursive(prismaClientDir, path.join(targetNodeModulesDir, '.prisma', 'client'));
   }
 }
 
@@ -139,21 +235,114 @@ async function applyWindowsExecutableResources(targetExePath) {
 }
 
 function stageRuntimeFiles() {
-  const stagedProductRoot = path.join(appRoot, 'product');
-  fs.mkdirSync(stagedProductRoot, { recursive: true });
+  copyDirRecursive(path.join(productRoot, 'server', 'dist'), path.join(outRoot, 'server', 'dist'));
+  copyDirRecursive(path.join(productRoot, 'server', 'data'), path.join(outRoot, 'server', 'data'));
+  removePathWithRetry(path.join(outRoot, 'server', 'data', 'config.json'));
+  copyFileIfExists(path.join(productRoot, 'server', 'data', 'config.json'), path.join(outRoot, 'config.json'));
+  copyDirRecursive(path.join(productRoot, 'client', 'dist'), path.join(outRoot, 'client', 'dist'));
+  stageRuntimeNodeModules(path.join(outRoot, 'node_modules'));
 
-  copyDirRecursive(path.join(productRoot, 'server', 'dist'), path.join(stagedProductRoot, 'server', 'dist'));
-  copyDirRecursive(path.join(productRoot, 'server', 'data'), path.join(stagedProductRoot, 'server', 'data'));
-  copyDirRecursive(path.join(productRoot, 'client', 'dist'), path.join(stagedProductRoot, 'client', 'dist'));
-  copyDirRecursive(path.join(productRoot, 'shared', 'dist'), path.join(stagedProductRoot, 'shared', 'dist'));
-  copyDirRecursive(path.join(productRoot, 'node_modules'), path.join(stagedProductRoot, 'node_modules'));
+  const serverPackageJsonPath = path.join(productRoot, 'server', 'package.json');
+  if (fs.existsSync(serverPackageJsonPath)) {
+    fs.mkdirSync(path.join(outRoot, 'server'), { recursive: true });
+    fs.copyFileSync(serverPackageJsonPath, path.join(outRoot, 'server', 'package.json'));
+  }
+}
 
-  for (const name of ['package.json', 'package-lock.json']) {
-    const src = path.join(productRoot, name);
-    if (fs.existsSync(src)) {
-      fs.copyFileSync(src, path.join(stagedProductRoot, name));
+function copyFileIfExists(sourcePath, targetPath) {
+  if (!fs.existsSync(sourcePath)) {
+    return;
+  }
+  ensureDir(path.dirname(targetPath));
+  fs.copyFileSync(sourcePath, targetPath);
+}
+
+function stageArchiveRoot() {
+  const archiveRootParent = path.join(outRoot, '.archive');
+  const archiveRoot = path.join(archiveRootParent, 'superjinroh');
+  ensureEmptyDir(archiveRootParent);
+  ensureDir(archiveRoot);
+  copyFileIfExists(exePath, path.join(archiveRoot, exeName));
+  copyFileIfExists(path.join(outRoot, 'config.json'), path.join(archiveRoot, 'config.json'));
+  copyDirRecursive(path.join(outRoot, 'server'), path.join(archiveRoot, 'server'));
+  copyDirRecursive(path.join(outRoot, 'client'), path.join(archiveRoot, 'client'));
+  copyDirRecursive(path.join(outRoot, 'node_modules'), path.join(archiveRoot, 'node_modules'));
+  return { archiveRootParent, archiveRoot };
+}
+
+function cleanupArchiveRoot(archiveRootParent) {
+  removePathWithRetry(archiveRootParent);
+}
+
+function cleanBuildOutput() {
+  ensureDir(outRoot);
+  for (const name of [exeName, 'config.json', 'server', 'client', 'node_modules', '.archive']) {
+    const targetPath = path.join(outRoot, name);
+    if (fs.existsSync(targetPath)) {
+      removePathWithRetry(targetPath);
     }
   }
+}
+
+function resolveArchiveOutputPath(preferredPath) {
+  try {
+    removePathWithRetry(preferredPath);
+    return preferredPath;
+  } catch (error) {
+    if (!(error instanceof Error) || !('code' in error) || (error.code !== 'EBUSY' && error.code !== 'EPERM')) {
+      throw error;
+    }
+
+    const parsedPath = path.parse(preferredPath);
+    const archiveName = parsedPath.ext === '.gz'
+      ? parsedPath.base.replace(/\.tar\.gz$/, '')
+      : parsedPath.name;
+    const archiveExtension = parsedPath.ext === '.gz' ? '.tar.gz' : parsedPath.ext;
+    const fallbackPath = path.join(parsedPath.dir, `${archiveName}-${Date.now()}${archiveExtension}`);
+    console.warn(`Archive output is locked; writing to ${fallbackPath} instead of ${preferredPath}.`);
+    return fallbackPath;
+  }
+}
+
+function packageWindowsArchive() {
+  const archivePath = resolveArchiveOutputPath(path.join(outRoot, `superjinroh-${platform}-${arch}.zip`));
+  const { archiveRootParent } = stageArchiveRoot();
+  try {
+    run(
+      'powershell',
+      [
+        '-NoProfile',
+        '-Command',
+        `Compress-Archive -Path "${path.join(archiveRootParent, 'superjinroh')}" -DestinationPath "${archivePath}" -Force`,
+      ],
+      { cwd: outRoot },
+    );
+  } finally {
+    cleanupArchiveRoot(archiveRootParent);
+  }
+  console.log(`Created ${archivePath}`);
+}
+
+function packageMacArchive() {
+  const archivePath = resolveArchiveOutputPath(path.join(outRoot, `superjinroh-${platform}-${arch}.zip`));
+  const { archiveRootParent } = stageArchiveRoot();
+  try {
+    run('ditto', ['-c', '-k', '--sequesterRsrc', '--keepParent', path.join(archiveRootParent, 'superjinroh'), archivePath]);
+  } finally {
+    cleanupArchiveRoot(archiveRootParent);
+  }
+  console.log(`Created ${archivePath}`);
+}
+
+function packageLinuxArchive() {
+  const archivePath = resolveArchiveOutputPath(path.join(outRoot, `superjinroh-${platform}-${arch}.tar.gz`));
+  const { archiveRootParent } = stageArchiveRoot();
+  try {
+    run('tar', ['-czf', archivePath, 'superjinroh'], { cwd: archiveRootParent });
+  } finally {
+    cleanupArchiveRoot(archiveRootParent);
+  }
+  console.log(`Created ${archivePath}`);
 }
 
 async function buildSeaBinary() {
@@ -208,96 +397,19 @@ async function buildSeaBinary() {
 }
 
 async function packageWindows() {
-  const releaseExe = path.join(outRoot, 'superjinroh.exe');
-  fs.copyFileSync(exePath, releaseExe);
-  ensureCustomRoleSetDir(outRoot);
-  console.log(`Created ${releaseExe}`);
+  packageWindowsArchive();
 }
 
 function packageMac() {
-  const icnsPath = path.join(assetsDir, 'superjinroh.icns');
-  const dmgPath = path.join(outRoot, 'superjinroh.dmg');
-
-  if (fs.existsSync(icnsPath)) {
-    // UDRW (read-write) DMG を作り、ボリュームアイコンを設定後に UDZO に変換する
-    const rwDmg = `${dmgPath}.rw.dmg`;
-    run('hdiutil', ['create', '-volname', 'superJinroh', '-srcfolder', appRoot, '-ov', '-format', 'UDRW', '-o', `${dmgPath}.rw`]);
-
-    const attachResult = spawnSync('hdiutil', ['attach', rwDmg, '-readwrite', '-noverify', '-noautoopen']);
-    const attachOut = (attachResult.stdout ?? Buffer.alloc(0)).toString();
-    const mountMatch = attachOut.match(/\/Volumes\/[^\n]+/);
-    const mountPoint = mountMatch?.[0]?.trim();
-
-    if (mountPoint) {
-      fs.copyFileSync(icnsPath, path.join(mountPoint, '.VolumeIcon.icns'));
-      const sf = spawnSync('SetFile', ['-a', 'C', mountPoint]);
-      if (sf.status !== 0) {
-        spawnSync('xattr', ['-wx', 'com.apple.FinderInfo',
-          '0000000000000000040000000000000000000000000000000000000000000000',
-          mountPoint]);
-      }
-      spawnSync('hdiutil', ['detach', mountPoint]);
-    } else {
-      console.warn('DMG mount point not found - volume icon not applied.');
-      spawnSync('hdiutil', ['detach', '-force', rwDmg]);
-    }
-
-    run('hdiutil', ['convert', rwDmg, '-format', 'UDZO', '-o', dmgPath]);
-    fs.rmSync(rwDmg, { force: true });
-  } else {
-    run('hdiutil', ['create', '-volname', 'superJinroh', '-srcfolder', appRoot, '-ov', '-format', 'UDZO', dmgPath]);
-  }
-
-  console.log(`Created ${dmgPath}`);
+  packageMacArchive();
 }
 
 function packageLinux() {
-  const appDir = path.join(outRoot, 'SuperJinroh.AppDir');
-  ensureEmptyDir(appDir);
-
-  fs.copyFileSync(exePath, path.join(appDir, 'superjinroh'));
-  fs.chmodSync(path.join(appDir, 'superjinroh'), 0o755);
-
-  const appRun = `#!/usr/bin/env bash\nHERE=\"$(cd \"$(dirname \"$0\")\" && pwd)\"\nexec \"$HERE/superjinroh\"\n`;
-  fs.writeFileSync(path.join(appDir, 'AppRun'), appRun);
-  fs.chmodSync(path.join(appDir, 'AppRun'), 0o755);
-
-  // PNG を AppDir 直下にコピーして .desktop の Icon 名と一致させる
-  const pngSrc = path.join(assetsDir, 'superjinroh.png');
-  if (fs.existsSync(pngSrc)) {
-    fs.copyFileSync(pngSrc, path.join(appDir, 'superjinroh.png'));
-  }
-
-  fs.writeFileSync(
-    path.join(appDir, 'superjinroh.desktop'),
-    [
-      '[Desktop Entry]',
-      'Type=Application',
-      'Name=superJinroh',
-      'Exec=superjinroh',
-      'Icon=superjinroh',
-      'Categories=Game;',
-      'Terminal=true',
-      '',
-    ].join('\n'),
-  );
-
-  const appImagePath = path.join(outRoot, 'superjinroh-x86_64.AppImage');
-  const appImageTool = process.env.APPIMAGETOOL || 'appimagetool';
-  run(appImageTool, [appDir, appImagePath], {
-    env: {
-      ...process.env,
-      APPIMAGE_EXTRACT_AND_RUN: process.env.APPIMAGE_EXTRACT_AND_RUN ?? '1',
-    },
-  });
-  ensureCustomRoleSetDir(outRoot);
-  console.log(`Created ${appImagePath}`);
+  packageLinuxArchive();
 }
 
 async function main() {
-  ensureEmptyDir(outRoot);
-  fs.mkdirSync(appRoot, { recursive: true });
-  ensureCustomRoleSetDir(appRoot);
+  cleanBuildOutput();
 
   stageRuntimeFiles();
   await buildSeaBinary();

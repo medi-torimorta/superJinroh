@@ -1,9 +1,10 @@
 node_modules/
 dist/
+client/dist/
+server/dist/
 coverage/
 server/data/app.db
 server/prisma/dev.db
-client/dist/
-docs/
+.sea/
 logs/
 *.log

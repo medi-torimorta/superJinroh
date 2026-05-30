@@ -1,10 +1,10 @@
 {
   "port": 11037,
-  "allowMultipleParticipantsPerIp": true,
+  "allowMultipleParticipantsPerIp": false,
   "enableUpnpPortMapping": true,
   "upnpPortMappingDescription": "superJinroh",
-  "upnpLeaseDurationSeconds": 0,
+  "upnpLeaseDurationSeconds": 3600,
   "itemHandLimit": 2,
-  "requireAdminPassword": true,
+  "requireAdminPassword": false,
   "adminPassword": ""
 }
