@@ -70,6 +70,106 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
+const DATABASE_BOOTSTRAP_STATEMENTS = [
+  `CREATE TABLE IF NOT EXISTS "PlayerIdentity" (
+    "ipAddress" TEXT NOT NULL PRIMARY KEY,
+    "displayName" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "lastSeenAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS "AppSetting" (
+    "settingKey" TEXT NOT NULL PRIMARY KEY,
+    "settingValue" TEXT NOT NULL,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS "Game" (
+    "gameId" TEXT NOT NULL PRIMARY KEY,
+    "status" TEXT NOT NULL,
+    "selectedRoleSetId" TEXT NOT NULL,
+    "dayNumber" INTEGER NOT NULL,
+    "phaseType" TEXT NOT NULL,
+    "startedAt" DATETIME NOT NULL,
+    "finishedAt" DATETIME,
+    "monsterWinRequiredKills" INTEGER NOT NULL,
+    "monsterKillCount" INTEGER NOT NULL,
+    "monsterKillGoalReachedDay" INTEGER
+  )`,
+  `CREATE TABLE IF NOT EXISTS "GamePlayer" (
+    "gamePlayerId" TEXT NOT NULL PRIMARY KEY,
+    "gameId" TEXT NOT NULL,
+    "seatOrder" INTEGER NOT NULL,
+    "ipAddress" TEXT NOT NULL,
+    "displayName" TEXT NOT NULL,
+    "roleId" TEXT NOT NULL,
+    "hobbyId" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "isConnected" BOOLEAN NOT NULL,
+    "deathCause" TEXT,
+    FOREIGN KEY ("gameId") REFERENCES "Game" ("gameId") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE TABLE IF NOT EXISTS "GameItemDeck" (
+    "gameItemDeckId" TEXT NOT NULL PRIMARY KEY,
+    "gameId" TEXT NOT NULL,
+    "drawCount" INTEGER NOT NULL,
+    "discardCount" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("gameId") REFERENCES "Game" ("gameId") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "GameItemDeck_gameId_key" ON "GameItemDeck"("gameId")`,
+  `CREATE TABLE IF NOT EXISTS "GameItemDeckCard" (
+    "gameItemDeckCardId" TEXT NOT NULL PRIMARY KEY,
+    "gameItemDeckId" TEXT NOT NULL,
+    "itemId" TEXT NOT NULL,
+    "serialInItem" INTEGER NOT NULL,
+    "zone" TEXT NOT NULL,
+    "drawOrder" INTEGER NOT NULL,
+    "ownerGamePlayerId" TEXT,
+    "usedAt" DATETIME,
+    FOREIGN KEY ("gameItemDeckId") REFERENCES "GameItemDeck" ("gameItemDeckId") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("ownerGamePlayerId") REFERENCES "GamePlayer" ("gamePlayerId") ON DELETE SET NULL ON UPDATE CASCADE
+  )`,
+  `CREATE TABLE IF NOT EXISTS "VoteRecord" (
+    "voteRecordId" TEXT NOT NULL PRIMARY KEY,
+    "gameId" TEXT NOT NULL,
+    "dayNumber" INTEGER NOT NULL,
+    "voterGamePlayerId" TEXT NOT NULL,
+    "targetGamePlayerId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("gameId") REFERENCES "Game" ("gameId") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE TABLE IF NOT EXISTS "DeathRecord" (
+    "deathRecordId" TEXT NOT NULL PRIMARY KEY,
+    "gameId" TEXT NOT NULL,
+    "gamePlayerId" TEXT NOT NULL,
+    "dayNumber" INTEGER NOT NULL,
+    "phaseType" TEXT NOT NULL,
+    "cause" TEXT NOT NULL,
+    "causedByGamePlayerId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("gameId") REFERENCES "Game" ("gameId") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE TABLE IF NOT EXISTS "ActionLog" (
+    "actionLogId" TEXT NOT NULL PRIMARY KEY,
+    "gameId" TEXT,
+    "category" TEXT NOT NULL,
+    "payloadJson" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("gameId") REFERENCES "Game" ("gameId") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE TABLE IF NOT EXISTS "NightAction" (
+    "nightActionId" TEXT NOT NULL PRIMARY KEY,
+    "gameId" TEXT NOT NULL,
+    "dayNumber" INTEGER NOT NULL,
+    "actorGamePlayerId" TEXT NOT NULL,
+    "actionKey" TEXT NOT NULL,
+    "targetGamePlayerId" TEXT,
+    "submittedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("gameId") REFERENCES "Game" ("gameId") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "NightAction_gameId_dayNumber_actorGamePlayerId_actionKey_key" ON "NightAction"("gameId", "dayNumber", "actorGamePlayerId", "actionKey")`,
+] as const;
+
 const DEFAULT_PORT = 11037;
 const CLIENT_ID_HEADER = 'x-super-jinroh-client-id';
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
@@ -878,6 +978,14 @@ async function loadMasterData() {
     }))
     .sort((left, right) => left.displayName.localeCompare(right.displayName, 'ja'));
   runtime.itemById = new Map(runtime.items.map((entry) => [entry.itemId, entry]));
+}
+
+async function ensureDatabaseReady() {
+  await fs.mkdir(path.dirname(prismaDatabasePath), { recursive: true });
+  await prisma.$executeRawUnsafe('PRAGMA foreign_keys = ON');
+  for (const statement of DATABASE_BOOTSTRAP_STATEMENTS) {
+    await prisma.$executeRawUnsafe(statement);
+  }
 }
 
 async function ensureSettings() {
@@ -4275,6 +4383,7 @@ wss.on('connection', async (socket: WebSocket, req: IncomingMessage) => {
 
 async function bootstrap() {
   registerShutdownHandlers();
+  await ensureDatabaseReady();
   await loadAppConfig();
   await loadRoleDefinitions();
   await loadAbilityDefinitions();
