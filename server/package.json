@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@prisma/client": "6.8.2",
-    "@super-jinroh/shared": "0.1.0",
+    "@super-jinroh/shared": "file:../shared",
     "cors": "2.8.5",
     "express": "4.21.2",
     "nat-upnp-rejetto": "^2.1.2",

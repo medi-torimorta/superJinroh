@@ -506,6 +506,10 @@ button:disabled {
   border: 1px solid rgba(196, 172, 124, 0.72);
 }
 
+.ability-entry.is-exhausted {
+  border: 1px solid rgba(164, 164, 164, 0.38);
+}
+
 .reservation-overlay {
   position: absolute;
   inset: 0;
@@ -536,8 +540,22 @@ button:disabled {
   align-items: flex-start;
 }
 
+.ability-remaining-count {
+  color: #d8d0c8;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+}
+
 .ability-description-inline {
   color: #d1c7bc;
+}
+
+.ability-disabled-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(128, 128, 128, 0.42);
+  pointer-events: none;
 }
 
 .title-with-badge {

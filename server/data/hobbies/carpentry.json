@@ -1,0 +1,9 @@
+{
+  "hobbyId": "carpentry",
+  "displayName": "日曜大工",
+  "description": "準備中",
+  "hobbyType": "SKILL",
+  "abilityIds": ["craft-discard-and-draw-item"],
+  "useCount": 1,
+  "enabled": true
+}

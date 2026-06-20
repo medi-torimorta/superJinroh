@@ -1,0 +1,11 @@
+{
+  "abilityId": "craft-discard-and-draw-item",
+  "displayName": "工芸",
+  "description": "昼開始時、所持しているアイテムを1つ捨てる。その後、山から新たにアイテムを1つ受け取る。",
+  "abilityType": "ACTIVE",
+  "timing": "DAY_START",
+  "canCancel": false,
+  "targetCount": 1,
+  "implementationKey": "craft-discard-and-draw-item",
+  "enabled": true
+}

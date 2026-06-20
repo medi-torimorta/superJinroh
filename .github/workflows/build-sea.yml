@@ -8,14 +8,22 @@ on:
 
 jobs:
   build:
-    name: SEA (${{ matrix.os }})
+    name: SEA (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - label: windows-x64
+            os: windows-latest
+          - label: macos-x64
+            os: macos-13
+          - label: macos-arm64
+            os: macos-14
+          - label: linux-x64
+            os: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -43,7 +51,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sea-${{ runner.os }}-${{ runner.arch }}
+          name: sea-${{ matrix.label }}
           path: |
             dist/sea/**/*.zip
             dist/sea/**/*.tar.gz
@@ -69,7 +77,8 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$(find release-assets -type f -name 'superjinroh-win32-*.zip' | head -n 1)"
-          test -n "$(find release-assets -type f -name 'superjinroh-darwin-*.zip' | head -n 1)"
+          test -n "$(find release-assets -type f -name 'superjinroh-darwin-x64.zip' | head -n 1)"
+          test -n "$(find release-assets -type f -name 'superjinroh-darwin-arm64.zip' | head -n 1)"
           test -n "$(find release-assets -type f -name 'superjinroh-linux-*.tar.gz' | head -n 1)"
 
       - name: Upload assets to GitHub Release

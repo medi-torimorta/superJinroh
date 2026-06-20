@@ -62,6 +62,7 @@ export interface HobbyDefinition {
   description: string;
   hobbyType: HobbyType;
   abilityIds: string[];
+  useCount?: number;
   enabled: boolean;
   imagePath: string | null;
 }
@@ -189,6 +190,7 @@ export interface GameSnapshot {
   myRoleAbilityIds: string[];
   myHobbyId: string | null;
   myHobbyAbilityIds: string[];
+  myHobbyUseCountRemaining: number | null;
   availableAbilityKeys: string[];
   reservedAbilityKeys: string[];
   myVoteTargetId: string | null;

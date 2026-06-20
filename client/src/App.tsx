@@ -339,6 +339,7 @@ function AbilityList({
   sourceType,
   sourceId,
   itemCardId = null,
+  remainingUseCount,
   availableAbilityKeys,
   reservedAbilityKeys,
   showReservedOverlay = true,
@@ -349,6 +350,7 @@ function AbilityList({
   sourceType?: AbilitySourceType;
   sourceId?: string;
   itemCardId?: string | null;
+  remainingUseCount?: number | null;
   availableAbilityKeys?: Set<string>;
   reservedAbilityKeys?: Set<string>;
   showReservedOverlay?: boolean;
@@ -366,12 +368,13 @@ function AbilityList({
           return null;
         }
         const abilityKey = sourceType && sourceId ? buildAbilityKey(sourceType, sourceId, abilityId, itemCardId) : null;
-        const isAvailable = abilityKey ? availableAbilityKeys?.has(abilityKey) ?? false : false;
+        const isExhausted = sourceType === 'HOBBY' && remainingUseCount === 0;
+        const isAvailable = !isExhausted && (abilityKey ? availableAbilityKeys?.has(abilityKey) ?? false : false);
         const isReserved = abilityKey ? reservedAbilityKeys?.has(abilityKey) ?? false : false;
         const showAvailableBorder = isAvailable && sourceType !== 'ITEM';
         return (
           <div
-            className={`ability-entry${showAvailableBorder ? ' is-available' : ''}${isReserved ? ' is-reserved' : ''}${isAvailable && onAbilityClick ? ' is-clickable' : ''}`}
+            className={`ability-entry${showAvailableBorder ? ' is-available' : ''}${isReserved ? ' is-reserved' : ''}${isExhausted ? ' is-exhausted' : ''}${isAvailable && onAbilityClick ? ' is-clickable' : ''}`}
             key={ability.abilityId}
             onClick={isAvailable && onAbilityClick ? () => onAbilityClick(ability.abilityId, itemCardId) : undefined}
             role={isAvailable && onAbilityClick ? 'button' : undefined}
@@ -380,13 +383,15 @@ function AbilityList({
             <div className="title-with-badge ability-line">
               <strong>{sourceType === 'ITEM' ? '効果' : ability.displayName}</strong>
               {sourceType !== 'ROLE' ? <AbilityTypeBadge abilityType={ability.abilityType} /> : null}
-              <span className="ability-description-inline">{ability.description}</span>
             </div>
+            {sourceType === 'HOBBY' && remainingUseCount !== undefined ? <div className="ability-remaining-count">残り回数: {remainingUseCount ?? '-'}</div> : null}
+            <span className="ability-description-inline">{ability.description}</span>
             {isReserved && showReservedOverlay ? (
               <div className="reservation-overlay" aria-hidden="true">
                 <span className="reservation-pill">宣言予約中</span>
               </div>
             ) : null}
+            {isExhausted ? <div className="ability-disabled-overlay" aria-hidden="true" /> : null}
           </div>
         );
       })}
@@ -630,6 +635,7 @@ function MasterInfoBlock({
   abilityCatalog,
   sourceType,
   sourceId,
+  remainingUseCount,
   availableAbilityKeys,
   reservedAbilityKeys,
   onAbilityClick,
@@ -650,6 +656,7 @@ function MasterInfoBlock({
   abilityCatalog: Map<string, AbilityDefinition>;
   sourceType?: AbilitySourceType;
   sourceId?: string;
+  remainingUseCount?: number | null;
   availableAbilityKeys?: Set<string>;
   reservedAbilityKeys?: Set<string>;
   onAbilityClick?: (abilityId: string, itemCardId?: string | null) => void;
@@ -709,6 +716,7 @@ function MasterInfoBlock({
               sourceType={sourceType}
               sourceId={sourceId}
               itemCardId={null}
+              remainingUseCount={remainingUseCount}
               availableAbilityKeys={availableAbilityKeys}
               reservedAbilityKeys={reservedAbilityKeys}
               onAbilityClick={onAbilityClick}
@@ -1516,6 +1524,7 @@ export function App() {
                   abilityCatalog={abilityCatalog}
                   sourceType="HOBBY"
                   sourceId={myHobby.hobbyId}
+                  remainingUseCount={game.myHobbyUseCountRemaining}
                   availableAbilityKeys={availableAbilityKeySet}
                   reservedAbilityKeys={reservedAbilityKeySet}
                   onAbilityClick={(abilityId) => void toggleAbilityReservation('HOBBY', abilityId)}

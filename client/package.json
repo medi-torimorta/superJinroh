@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@super-jinroh/shared": "0.1.0",
+    "@super-jinroh/shared": "file:../shared",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

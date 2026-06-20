@@ -145,6 +145,7 @@ const hobbyDefinitionSchema = z.object({
   description: z.string().min(1),
   hobbyType: z.enum(['SKILL', 'SPELL', 'SPECIAL'] as [HobbyType, HobbyType, HobbyType]),
   abilityIds: z.array(z.string()),
+  useCount: z.number().int().min(0).optional(),
   enabled: z.boolean(),
 });
 
@@ -284,6 +285,7 @@ interface RuntimeGame {
   pendingProphecyDiaryTargetByPlayerId: Map<string, string>;
   pendingChocolateFirstTargetByPlayerId: Map<string, string>;
   hobbyTypeOverrideByPlayerId: Map<string, HobbyType>;
+  hobbyUseCountRemainingByPlayerId: Map<string, number>;
   pendingTriggeredAbilitiesByPlayerId: Map<string, TriggeredAbilitySource[]>;
   grantedTriggeredAbilitiesByPlayerId: Map<string, RuntimeGrantedTriggeredAbility[]>;
   reservedAbilitiesByPlayerId: Map<string, RuntimeReservedAbility[]>;
@@ -703,6 +705,7 @@ function registerShutdownHandlers() {
   };
 
   process.once('SIGINT', handleSignal);
+  process.once('SIGBREAK', handleSignal);
   process.once('SIGTERM', handleSignal);
   process.once('uncaughtException', (error) => {
     console.error(error);
@@ -1333,6 +1336,9 @@ function canUseAbilityNow(game: RuntimeGame, actor: RuntimePlayer, sourceType: A
   if (!isManualAbility(ability)) {
     return false;
   }
+  if (sourceType === 'HOBBY' && !hasRemainingHobbyAbilityUseCount(game, actor)) {
+    return false;
+  }
   if (ability.implementationKey === 'detective-kiseru-investigate') {
     return !hasAliveDetective(game);
   }
@@ -1347,6 +1353,9 @@ function canUseAbilityNow(game: RuntimeGame, actor: RuntimePlayer, sourceType: A
   }
   if (ability.implementationKey === 'protein-bar-gain-two-if-single-item') {
     return getInHandCards(game, actor.id).length === 1;
+  }
+  if (ability.implementationKey === 'craft-discard-and-draw-item') {
+    return getInHandCards(game, actor.id).length > 0;
   }
   if (ability.implementationKey === 'chocolate-grant-skill-and-spell') {
     const alive = game.players.filter((player) => player.status === 'ALIVE');
@@ -1480,6 +1489,11 @@ function getAbilityTargetOptions(game: RuntimeGame, actor: RuntimePlayer, abilit
     return [];
   }
 
+  if (ability.implementationKey === 'craft-discard-and-draw-item') {
+    return getInHandCards(game, actor.id)
+      .map((card) => ({ id: card.cardId, displayName: card.displayName }));
+  }
+
   if (ability.implementationKey === 'special-detective-kiseru-investigate') {
     return game.players
       .filter((player) => player.status === 'ALIVE')
@@ -1563,6 +1577,35 @@ function doesAbilityActivateAtPhaseStart(ability: AbilityDefinition, phase: Excl
 
 function getReservedAbilities(game: RuntimeGame, playerId: string) {
   return game.reservedAbilitiesByPlayerId.get(playerId) ?? [];
+}
+
+function getHobbyAbilityUseCountLimit(player: RuntimePlayer) {
+  return runtime.hobbyById.get(player.hobbyId)?.useCount;
+}
+
+function getHobbyAbilityUseCountRemaining(game: RuntimeGame, playerId: string) {
+  const player = game.players.find((entry) => entry.id === playerId);
+  if (!player) {
+    return null;
+  }
+  const useCount = getHobbyAbilityUseCountLimit(player);
+  if (useCount === undefined) {
+    return null;
+  }
+  return game.hobbyUseCountRemainingByPlayerId.get(playerId) ?? useCount;
+}
+
+function hasRemainingHobbyAbilityUseCount(game: RuntimeGame, player: RuntimePlayer) {
+  const remaining = getHobbyAbilityUseCountRemaining(game, player.id);
+  return remaining === null || remaining > 0;
+}
+
+function consumeHobbyAbilityUseCount(game: RuntimeGame, player: RuntimePlayer) {
+  const remaining = getHobbyAbilityUseCountRemaining(game, player.id);
+  if (remaining === null || remaining < 1) {
+    return;
+  }
+  game.hobbyUseCountRemainingByPlayerId.set(player.id, remaining - 1);
 }
 
 function setReservedAbilities(game: RuntimeGame, playerId: string, entries: RuntimeReservedAbility[]) {
@@ -1690,7 +1733,7 @@ function isTriggeredSourceStillAvailable(game: RuntimeGame, actor: RuntimePlayer
     return actor.roleAbilityIds.includes(source.ability.abilityId);
   }
   if (source.sourceType === 'HOBBY') {
-    return actor.hobbyAbilityIds.includes(source.ability.abilityId);
+    return actor.hobbyAbilityIds.includes(source.ability.abilityId) && hasRemainingHobbyAbilityUseCount(game, actor);
   }
   const card = game.deckCards.find((entry) => entry.cardId === source.itemCardId && entry.ownerPlayerId === actor.id && entry.zone === 'IN_HAND');
   const item = card ? runtime.itemById.get(card.itemId) : null;
@@ -1784,6 +1827,7 @@ function buildGameSnapshot(ipAddress: string): GameSnapshot | null {
     myRoleAbilityIds: me?.roleAbilityIds ?? [],
     myHobbyId: me?.hobbyId ?? null,
     myHobbyAbilityIds: me?.hobbyAbilityIds ?? [],
+    myHobbyUseCountRemaining: me ? getHobbyAbilityUseCountRemaining(game, me.id) : null,
     availableAbilityKeys: me ? getAvailableAbilityKeys(game, me) : [],
     reservedAbilityKeys: me ? getReservedAbilities(game, me.id).map((entry) => entry.abilityKey) : [],
     myVoteTargetId,
@@ -2050,7 +2094,7 @@ function getTriggeredAbilitySources(game: RuntimeGame, player: RuntimePlayer, ti
 
   for (const abilityId of player.hobbyAbilityIds) {
     const ability = runtime.abilityById.get(abilityId);
-    if (ability && getAbilityTriggerTiming(ability) === timing && shouldIncludeAbility(ability)) {
+    if (ability && getAbilityTriggerTiming(ability) === timing && shouldIncludeAbility(ability) && hasRemainingHobbyAbilityUseCount(game, player)) {
       sources.push({ sourceType: 'HOBBY', sourceId: player.hobbyId, ability, itemCardId: null });
     }
   }
@@ -2941,6 +2985,21 @@ async function resolveQueuedAbility(game: RuntimeGame, queued: RuntimeQueuedAbil
       targetPlayerId: targetPlayerId ?? null,
       targetItemId: targetItemId ?? null,
     }, game.gameId);
+  } else if (ability.implementationKey === 'craft-discard-and-draw-item') {
+    const targetCardId = queued.targetIds[0];
+    const targetCard = targetCardId
+      ? game.deckCards.find((entry) => entry.cardId === targetCardId && entry.ownerPlayerId === actor.id && entry.zone === 'IN_HAND')
+      : null;
+    if (targetCard) {
+      await discardCardsByIds(game, actor.id, [targetCardId]);
+      await grantItemsFromDeck(game, [actor.id], 1);
+      resolved = true;
+    }
+    await logAction('ability.resolved', {
+      actorId: actor.id,
+      abilityId: ability.abilityId,
+      targetCardId: targetCardId ?? null,
+    }, game.gameId);
   }
   if (queued.sourceType === 'ITEM' && queued.itemCardId) {
     const card = game.deckCards.find((entry) => entry.cardId === queued.itemCardId);
@@ -2949,6 +3008,9 @@ async function resolveQueuedAbility(game: RuntimeGame, queued: RuntimeQueuedAbil
     }
   }
   if (resolved) {
+    if (queued.sourceType === 'HOBBY') {
+      consumeHobbyAbilityUseCount(game, actor);
+    }
     pushAbilityExecutionLog(game, actor, queued, ability);
   }
 }
@@ -3488,6 +3550,12 @@ async function startGame() {
     pendingProphecyDiaryTargetByPlayerId: new Map(),
     pendingChocolateFirstTargetByPlayerId: new Map(),
     hobbyTypeOverrideByPlayerId: new Map(),
+    hobbyUseCountRemainingByPlayerId: new Map(
+      players.flatMap((player) => {
+        const useCount = runtime.hobbyById.get(player.hobbyId)?.useCount;
+        return useCount === undefined ? [] : [[player.id, useCount] as const];
+      }),
+    ),
     pendingTriggeredAbilitiesByPlayerId: new Map(),
     grantedTriggeredAbilitiesByPlayerId: new Map(),
     reservedAbilitiesByPlayerId: new Map(),
